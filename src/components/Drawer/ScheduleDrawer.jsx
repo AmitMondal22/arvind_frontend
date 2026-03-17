@@ -83,9 +83,9 @@ function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form) {
 
   // Days
   if (sched.days) {
-      setSelectedDays(sched.days.split(','));
+    setSelectedDays(sched.days.split(','));
   } else {
-      setSelectedDays(dayOptions.map(d => d.value));
+    setSelectedDays(dayOptions.map(d => d.value));
   }
 }
 
@@ -151,18 +151,18 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
     ws.onerror = () => { message.error('WebSocket connection error.'); };
     ws.onclose = () => { wsRef.current = null; isConnectingRef.current = false; };
 
-    return () => { try { ws.close(); } catch {} wsRef.current = null; isConnectingRef.current = false; };
+    return () => { try { ws.close(); } catch { } wsRef.current = null; isConnectingRef.current = false; };
   }, [open, device_Id, derivedDevice, form]);
 
   /** Actions */
   const handleSaveApply = async () => {
     if (selectedValve === '' || selectedSetting === '') {
-        message.warning('Please select a channel and setting type.');
-        return;
+      message.warning('Please select a channel and setting type.');
+      return;
     }
 
     const values = form.getFieldsValue();
-    
+
     const payload = {
       organization_id: organizationId,
       device_id: deviceId,
@@ -183,16 +183,16 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
   const handleResetTotalizer = async () => {
     if (selectedValve === '') {
-        message.warning('Please select a channel first.');
-        return;
+      message.warning('Please select a channel first.');
+      return;
     }
     await resetShedulingApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve });
   };
 
   const handleGetDeviceSettings = async () => {
     if (selectedValve === '') {
-        message.warning('Please select a channel first.');
-        return;
+      message.warning('Please select a channel first.');
+      return;
     }
     await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve });
   };
@@ -224,8 +224,8 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
         </Space>
       }
       placement="right"
-      width={480}
-      style={{ maxWidth: window?.innerWidth > 768 ? 480 : '100%' }}
+      width={540}
+      style={{ maxWidth: window?.innerWidth > 768 ? 540 : '100%' }}
       open={open}
       onClose={onClose}
       bodyStyle={{ padding: window?.innerWidth > 768 ? '24px' : '16px', backgroundColor: '#f8fafc' }}
@@ -276,12 +276,12 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
             {/* Timers */}
             <Row gutter={[16, 16]}>
               <Col xs={12}>
-                <Form.Item name="one_on_time" label="One On Time" required>
+                <Form.Item name="one_on_time" label="Set On Time" required>
                   <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} />
                 </Form.Item>
               </Col>
               <Col xs={12}>
-                <Form.Item name="one_off_time" label="One Off Time" required>
+                <Form.Item name="one_off_time" label="Set Off Time" required>
                   <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} />
                 </Form.Item>
               </Col>
@@ -293,18 +293,18 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
             <div style={{ marginBottom: 16 }}>
               <div style={{ marginBottom: 8, fontWeight: 500 }}>Select Days (Sun to Sat)</div>
               <div style={{ marginBottom: 12 }}>
-                  <Checkbox 
-                      indeterminate={indeterminate} 
-                      onChange={onAllDaysChange} 
-                      checked={allDaysChecked}
-                  >
-                      All Days
-                  </Checkbox>
+                <Checkbox
+                  indeterminate={indeterminate}
+                  onChange={onAllDaysChange}
+                  checked={allDaysChecked}
+                >
+                  All Days
+                </Checkbox>
               </div>
-              <Checkbox.Group 
-                  options={dayOptions} 
-                  value={selectedDays} 
-                  onChange={onDayChange} 
+              <Checkbox.Group
+                options={dayOptions}
+                value={selectedDays}
+                onChange={onDayChange}
               />
             </div>
 

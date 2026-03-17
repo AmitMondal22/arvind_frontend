@@ -426,7 +426,7 @@ const DeviceDashboard = () => {
               <ClockCircleOutlined style={{ margin: '0 6px' }} />
               {deviceInfo.time}
             </Text>
-            <div className="signal-info">
+            {/* <div className="signal-info">
               <WifiOutlined
                 style={{
                   color: getSignalColor(deviceInfo.signal),
@@ -447,7 +447,7 @@ const DeviceDashboard = () => {
                 showInfo={false}
                 strokeWidth={6}
               />
-            </div>
+            </div> */}
             <Button
               type="primary"
               icon={<ScheduleOutlined />}
