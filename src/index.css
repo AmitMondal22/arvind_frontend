@@ -1,0 +1,40 @@
+.ant-menu-item:hover {
+  background-color: #e6f4ff !important;
+  color: #007FFF !important;
+}
+
+
+/* Hide menu toggle on larger screens */
+@media (min-width: 768px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+/* ============================================
+============================================ */
+/* Show menu toggle on smaller screens */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: absolute;
+    z-index: 999;
+  }
+
+  .ant-layout-sider-collapsed {
+    position: relative;
+  }
+
+  /* Adjust the sidebar menu for mobile */
+  .ant-menu-item {
+    padding: 12px 16px;
+  }
+}
+
+
+/* ================================== */
+
