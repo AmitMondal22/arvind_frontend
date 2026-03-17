@@ -1,7 +1,7 @@
 // Dashboard.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { List, Card, Typography, Badge, Tag, Row, Col, Button, Tooltip, message } from "antd";
+import { List, Card, Typography, Badge, Tag, Row, Col, Button, Tooltip, message, Tabs } from "antd";
 import {
   HddOutlined,
   WifiOutlined,
@@ -15,6 +15,7 @@ import useDashboardDeviceApi from "../../api/useDashboardDeviceApi";
 import './Dashboard.css';
 
 const { Text, Title } = Typography;
+const { TabPane } = Tabs;
 
 const POLL_INTERVAL_MS = 30000; // 30 seconds
 
@@ -25,6 +26,8 @@ const Dashboard = () => {
   const [deviceList, setDeviceList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reloadLoading, setReloadLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("OMS");
+  
   const pollTimerRef = useRef(null);
 
   // ✅ Silent refresh — updates list without showing loading spinner
@@ -120,22 +123,115 @@ const Dashboard = () => {
     return `${orgName} - ${projName}`;
   };
 
-  const getDeviceCounts = () => {
-    const onlineDevices = deviceList.filter(device => {
+  // Split logic based on name or device id
+  const isAms = (item) => {
+    const dName = String(item.device_name || "").toUpperCase();
+    const dId = String(item.device || "").toUpperCase();
+    return dName.includes('AMS') || dId.includes('AMS');
+  };
+
+  const omsList = deviceList.filter(d => !isAms(d));
+  const amsList = deviceList.filter(d => isAms(d));
+
+  const displayList = activeTab === "OMS" ? omsList : amsList;
+
+  const getDeviceCounts = (list) => {
+    const onlineDevices = list.filter(device => {
       const status = getDeviceStatus(device.device_status);
       return status.status === "ONLINE";
     }).length;
 
-    const offlineDevices = deviceList.length - onlineDevices;
+    const offlineDevices = list.length - onlineDevices;
 
     return {
-      total: deviceList.length,
+      total: list.length,
       online: onlineDevices,
       offline: offlineDevices
     };
   };
 
-  const deviceCounts = getDeviceCounts();
+  const deviceCounts = getDeviceCounts(displayList);
+
+  const renderDeviceGrid = (list) => (
+    <List
+      grid={{
+        gutter: [20, 20],
+        xs: 1,
+        sm: 2,
+        md: 3,
+        lg: 4,
+        xl: 5,
+        xxl: 6,
+      }}
+      dataSource={list}
+      renderItem={(item) => {
+        const deviceStatus = getDeviceStatus(item.device_status);
+
+        return (
+          <List.Item>
+            <Card
+              hoverable
+              onClick={() => handleDeviceClick(item.device_id, item.device, item.device_name)}
+              className="device-card"
+              style={{
+                border: `1.5px solid ${deviceStatus.borderColor}`,
+                background: deviceStatus.bgColor,
+              }}
+              bodyStyle={{
+                padding: "20px 16px",
+                textAlign: "center",
+                position: "relative",
+              }}
+            >
+              <Badge
+                status={deviceStatus.status === "ONLINE" ? "success" : "error"}
+                style={{ position: "absolute", top: "12px", right: "12px" }}
+              />
+
+              <div
+                className="device-icon-container"
+                style={{
+                  background: `linear-gradient(135deg, ${deviceStatus.color}, ${deviceStatus.color}dd)`,
+                  boxShadow: `0 3px 10px ${deviceStatus.color}30`,
+                }}
+              >
+                <HddOutlined />
+              </div>
+
+              <Title
+                level={5}
+                className="device-name"
+                ellipsis={{ tooltip: item.device_name }}
+              >
+                {item.device_name}
+              </Title>
+
+              <div style={{ marginBottom: "8px" }}>
+                <Tag
+                  color={deviceStatus.status === "ONLINE" ? "success" : "error"}
+                  className="device-status-tag"
+                >
+                  {deviceStatus.icon}
+                  {deviceStatus.status}
+                </Tag>
+              </div>
+            </Card>
+          </List.Item>
+        );
+      }}
+      locale={{
+        emptyText: (
+          <div className="empty-state">
+            <HddOutlined className="empty-icon" />
+            <Title level={4} type="secondary">
+              No devices found
+            </Title>
+            <Text type="secondary">Connect devices to see them here</Text>
+          </div>
+        ),
+      }}
+    />
+  );
 
   return (
     <div className="dashboard-container">
@@ -161,49 +257,29 @@ const Dashboard = () => {
                 <div className="status-badge">
                   <div className="pulse-dot" />
                   <Text className="status-text">
-                    Live Device
+                    Live Device Setup
                   </Text>
                 </div>
 
                 <Text className="monitoring-text">
-                  Real-time Device
+                  Real-time Device Monitoring
                 </Text>
               </div>
             </div>
-
-            {/* ✅ Reload Button */}
+            
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
-              <Tooltip title="Refresh device status">
-                {/* <Button
-                  type="primary"
-                  icon={<ReloadOutlined spin={reloadLoading} />}
-                  loading={reloadLoading}
-                  onClick={handleReload}
-                  size="large"
-                  style={{
-                    borderRadius: "12px",
-                    background: "linear-gradient(135deg, #667eea, #764ba2)",
-                    border: "none",
-                    boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
-                    fontWeight: 600,
-                    height: "44px",
-                    padding: "0 24px",
-                  }}
-                >
-                  {reloadLoading ? "Updating..." : "Reload Status"}
-                </Button> */}
-              </Tooltip>
+               {/* Controls if any */}
             </div>
           </div>
 
-          {/* Gradient Stats Grid */}
+          {/* Gradient Stats Grid matching the current tab */}
           <Row gutter={[16, 16]}>
             {/* Total Devices Card */}
             <Col span={8}>
               <div className="stats-card total">
                 <div className="stats-content">
                   <div className="stats-header">
-                    <div className="stats-label">Total Devices</div>
+                    <div className="stats-label">Total {activeTab} Devices</div>
                     <div className="stats-icon-container">
                       <TabletOutlined className="stats-icon" />
                     </div>
@@ -258,90 +334,30 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Devices Grid */}
+      {/* TABS SECTION */}
       <Card
         className="devices-grid-card"
-        bodyStyle={{ padding: "28px" }}
+        bodyStyle={{ padding: "0" }}
         loading={loading}
       >
-        <List
-          grid={{
-            gutter: [20, 20],
-            xs: 1,
-            sm: 2,
-            md: 3,
-            lg: 4,
-            xl: 5,
-            xxl: 6,
-          }}
-          dataSource={deviceList}
-          renderItem={(item) => {
-            const deviceStatus = getDeviceStatus(item.device_status);
-
-            return (
-              <List.Item>
-                <Card
-                  hoverable
-                  onClick={() => handleDeviceClick(item.device_id, item.device, item.device_name)}
-                  className="device-card"
-                  style={{
-                    border: `1.5px solid ${deviceStatus.borderColor}`,
-                    background: deviceStatus.bgColor,
-                  }}
-                  bodyStyle={{
-                    padding: "20px 16px",
-                    textAlign: "center",
-                    position: "relative",
-                  }}
-                >
-                  <Badge
-                    status={deviceStatus.status === "ONLINE" ? "success" : "error"}
-                    style={{ position: "absolute", top: "12px", right: "12px" }}
-                  />
-
-                  <div
-                    className="device-icon-container"
-                    style={{
-                      background: `linear-gradient(135deg, ${deviceStatus.color}, ${deviceStatus.color}dd)`,
-                      boxShadow: `0 3px 10px ${deviceStatus.color}30`,
-                    }}
-                  >
-                    <HddOutlined />
-                  </div>
-
-                  <Title
-                    level={5}
-                    className="device-name"
-                    ellipsis={{ tooltip: item.device_name }}
-                  >
-                    {item.device_name}
-                  </Title>
-
-                  <div style={{ marginBottom: "8px" }}>
-                    <Tag
-                      color={deviceStatus.status === "ONLINE" ? "success" : "error"}
-                      className="device-status-tag"
-                    >
-                      {deviceStatus.icon}
-                      {deviceStatus.status}
-                    </Tag>
-                  </div>
-                </Card>
-              </List.Item>
-            );
-          }}
-          locale={{
-            emptyText: (
-              <div className="empty-state">
-                <HddOutlined className="empty-icon" />
-                <Title level={4} type="secondary">
-                  No devices found
-                </Title>
-                <Text type="secondary">Connect devices to see them here</Text>
-              </div>
-            ),
-          }}
-        />
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          className="buttery-smooth-tabs"
+          size="large"
+          centered
+        >
+          <TabPane tab="OMS Devices" key="OMS">
+             <div style={{ padding: "28px" }}>
+               {renderDeviceGrid(omsList)}
+             </div>
+          </TabPane>
+          <TabPane tab="AMS Devices" key="AMS">
+             <div style={{ padding: "28px" }}>
+               {renderDeviceGrid(amsList)}
+             </div>
+          </TabPane>
+        </Tabs>
       </Card>
     </div>
   );

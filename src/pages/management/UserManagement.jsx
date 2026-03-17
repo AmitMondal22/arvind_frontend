@@ -102,7 +102,7 @@ const UserManagement = () => {
   };
 
   const columns = [
-    { title: 'User Name', dataIndex: 'name', key: 'name' },
+    { title: 'User Name', dataIndex: 'user_name', key: 'user_name' },
     { title: 'Organization', dataIndex: 'organization_name', key: 'organization_name' },
     { title: 'Device UID', dataIndex: 'device', key: 'device' },
     {
@@ -132,7 +132,7 @@ const UserManagement = () => {
           </Form.Item>
           <Form.Item name="user_id" label="User" rules={[{ required: true }]}>
             <Select placeholder="Select User" showSearch optionFilterProp="children">
-              {usersList.map(u => (<Option key={u.user_id} value={u.user_id}>{u.name} ({u.email})</Option>))}
+              {usersList.map(u => (<Option key={u.user_id} value={u.user_id}>{u.user_name} ({u.user_email})</Option>))}
             </Select>
           </Form.Item>
           <Form.Item name="device_id" label="Device" rules={[{ required: true }]}>

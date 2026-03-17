@@ -47,11 +47,13 @@ const DeviceManagement = () => {
         values.last_maintenance = values.last_maintenance.format('YYYY-MM-DD');
       }
 
+      const payload = { ...values, imei_no: editingItem?.imei_no || 'N/A' };
+
       let res;
       if (editingItem) {
-        res = await editDevice({ ...values, device_id: editingItem.device_id, client_id: clientId });
+        res = await editDevice({ ...payload, device_id: editingItem.device_id, client_id: clientId });
       } else {
-        res = await addDevice([{ ...values, client_id: clientId }]);
+        res = await addDevice([{ ...payload, client_id: clientId }]);
       }
       
       if (res?.status) {
@@ -67,11 +69,9 @@ const DeviceManagement = () => {
   };
 
   const columns = [
-    { title: 'ID', dataIndex: 'device_id', key: 'device_id' },
     { title: 'UID / Device', dataIndex: 'device', key: 'device' },
     { title: 'Device Name', dataIndex: 'device_name', key: 'device_name' },
     { title: 'Model', dataIndex: 'model', key: 'model' },
-    { title: 'IMEI', dataIndex: 'imei_no', key: 'imei_no' },
     {
       title: 'Actions',
       key: 'actions',
@@ -105,9 +105,6 @@ const DeviceManagement = () => {
             <Input />
           </Form.Item>
           <Form.Item name="lon" label="Longitude" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="imei_no" label="IMEI No" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           {!editingItem && (

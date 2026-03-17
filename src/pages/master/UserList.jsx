@@ -43,7 +43,11 @@ const UserList = () => {
 
   const handleEdit = (record) => {
     setEditingItem(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      ...record,
+      name: record.user_name,
+      email: record.user_email
+    });
     setIsModalVisible(true);
   };
 
@@ -82,8 +86,8 @@ const UserList = () => {
 
   const columns = [
     { title: 'ID', dataIndex: 'user_id', key: 'user_id' },
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Name', dataIndex: 'user_name', key: 'user_name' },
+    { title: 'Email', dataIndex: 'user_email', key: 'user_email' },
     { title: 'Organization', dataIndex: 'organization_name', key: 'organization_name' },
     {
       title: 'Actions',

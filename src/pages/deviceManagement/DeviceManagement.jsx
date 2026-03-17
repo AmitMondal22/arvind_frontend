@@ -123,14 +123,6 @@ const DeviceManagement = () => {
 
   const columns = [
     {
-      title: 'S.No',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      render: (_, __, index) => <Tag color="blue">{index + 1}</Tag>,
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
       title: 'Company',
       dataIndex: ['company', 'company_name'],
       key: 'company_name',
