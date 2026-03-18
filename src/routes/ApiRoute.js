@@ -81,5 +81,10 @@ export const address = {
     MANAGE_USER_DEVICE_EDIT: `${BASEURL}/api/client/manage_user/edit_user_device`,
     MANAGE_USER_DEVICE_DELETE: `${BASEURL}/api/client/manage_user/delete_user_device`,
 
+    // Gateway Management
+    MANAGEMENT_GATEWAY_LIST: `${BASEURL}/api/management_gateway/list`,
+    MANAGEMENT_GATEWAY_ADD: `${BASEURL}/api/management_gateway/add`,
+    MANAGEMENT_GATEWAY_EDIT: `${BASEURL}/api/management_gateway/edit`,
+    MANAGEMENT_GATEWAY_DELETE: `${BASEURL}/api/management_gateway/delete`,
 
 };

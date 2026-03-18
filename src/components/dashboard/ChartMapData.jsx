@@ -54,7 +54,7 @@ function MapController({ center, zoom }) {
       map.setView(center, zoom || map.getZoom());
     }
   }, [center, zoom, map]);
-  
+
   return null;
 }
 
@@ -70,130 +70,78 @@ const ChartMapData = () => {
 
   const [deviceInfo, setDeviceInfo] = useState(null);
 
-useEffect(() => {
-  const fetchDeviceInfo = async () => {
-    try {
-      let reqData = {
-        client_id: 1,
-        device_id: Number(deviceId),
-        device: device,
-      };
+  useEffect(() => {
+    const fetchDeviceInfo = async () => {
+      try {
+        let reqData = {
+          client_id: 1,
+          device_id: Number(deviceId),
+          device: device,
+        };
 
-      const response = await apiDeviceInfo(reqData);
-      const response2 = await last1000data(reqData);
+        const response = await apiDeviceInfo(reqData);
+        const response2 = await last1000data(reqData);
 
-      const info = response.data.data;
+        const info = response.data.data;
 
-      // Fix chart data keys
-      const chartFormattedData = response2.data.map(item => ({
-        time: item.time,
-        flowRate: item.flow_rate1,   // ✅ renamed for chart
-        pressure: item.pressure,     // ✅ renamed for chart
-      }));
+        // Fix chart data keys
+        const chartFormattedData = response2.data.map(item => ({
+          time: item.time,
+          flowRate: item.flow_rate1,   // ✅ renamed for chart
+          pressure: item.pressure,     // ✅ renamed for chart
+        }));
 
-      setChartData(chartFormattedData);
+        setChartData(chartFormattedData);
 
-      if (info?.lat && info?.lon) {
-        setDeviceLocation({
-          center: [parseFloat(info.lat), parseFloat(info.lon)],
-          zoom: 15,
-        });
+        if (info?.lat && info?.lon) {
+          setDeviceLocation({
+            center: [parseFloat(info.lat), parseFloat(info.lon)],
+            zoom: 15,
+          });
+        }
+        setDeviceInfo(info);
+      } catch (error) {
+        console.error("Failed to fetch device info:", error);
       }
-      setDeviceInfo(info);
-    } catch (error) {
-      console.error("Failed to fetch device info:", error);
-    }
-  };
+    };
 
-  if (deviceId) fetchDeviceInfo();
-}, [deviceId, device]);
+    if (deviceId) fetchDeviceInfo();
+  }, [deviceId, device]);
 
 
   return (
-    <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
-      {/* Chart Column */}
-      <Col xs={24} md={16}>
-        <Card className="chart-card">
-          <Title level={4} className="chart-title">
-            <LineChartOutlined style={{ marginRight: "8px" }} />
-            Real-time Metrics
-          </Title>
-          <div style={{ width: "100%", height: "300px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-  data={chartData}
-  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
->
-  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-  <XAxis dataKey="time" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-  <YAxis tick={{ fontSize: 11 }} />
-  <RechartsTooltip
-    contentStyle={{
-      backgroundColor: "#fff",
-      border: "1px solid #d9d9d9",
-      borderRadius: "6px",
-    }}
-  />
-  <Legend />
-  <Line
-    type="monotone"
-    dataKey="flowRate"
-    stroke="#1890ff"
-    strokeWidth={2}
-    dot={false}   // remove dots
-    name="Pressure"
-  />
-  <Line
-    type="monotone"
-    dataKey="pressure"
-    stroke="#52c41a"
-    strokeWidth={2}
-    dot={false}   // remove dots
-    name="Pressure 2"
-  />
-</LineChart>
-
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </Col>
-
-      {/* Map Column */}
-      <Col xs={24} md={8}>
-        <Card className="map-card">
+    <Card className="map-card" style={{ height: '100%' }}>
           <Title level={4} className="map-title">
             <EnvironmentOutlined style={{ marginRight: "8px" }} />
             Device Location
           </Title>
           <div style={{ height: "300px", width: "100%", position: "relative" }}>
-              <MapContainer 
-                center={deviceLocation.center} 
-                zoom={deviceLocation.zoom} 
-                style={{ height: '100%', width: '100%', borderRadius: '12px', zIndex: 1 }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                />
-                
-                <MapController center={deviceLocation.center} zoom={deviceLocation.zoom} />
+            <MapContainer
+              center={deviceLocation.center}
+              zoom={deviceLocation.zoom}
+              style={{ height: '100%', width: '100%', borderRadius: '12px', zIndex: 1 }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              />
 
-                {deviceInfo && (
-                  <Marker position={deviceLocation.center} icon={deviceIcon}>
-                    <Popup>
-                      <div style={{ fontFamily: "inherit", padding: "4px" }}>
-                        <div style={{ marginBottom: "4px" }}><b>Name:</b> {deviceInfo.device_name}</div>
-                        <div style={{ marginBottom: "4px" }}><b>Model:</b> {deviceInfo.model}</div>
-                        <div><b>IMEI:</b> {deviceInfo.imei_no}</div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                )}
-              </MapContainer>
+              <MapController center={deviceLocation.center} zoom={deviceLocation.zoom} />
+
+              {deviceInfo && (
+                <Marker position={deviceLocation.center} icon={deviceIcon}>
+                  <Popup>
+                    <div style={{ fontFamily: "inherit", padding: "4px" }}>
+                      <div style={{ marginBottom: "4px" }}><b>Name:</b> {deviceInfo.device_name}</div>
+                      <div style={{ marginBottom: "4px" }}><b>Model:</b> {deviceInfo.model}</div>
+                      <div><b>IMEI:</b> {deviceInfo.imei_no}</div>
+                    </div>
+                  </Popup>
+                </Marker>
+              )}
+            </MapContainer>
           </div>
         </Card>
-      </Col>
-    </Row>
   );
 };
 

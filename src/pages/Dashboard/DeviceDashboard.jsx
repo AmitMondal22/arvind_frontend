@@ -468,65 +468,29 @@ const DeviceDashboard = () => {
         valveStates={valveStates}
       />
 
-      {/* Metrics */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-        <Col xs={12} sm={12} md={8}>
-          <Card className="metric-card flow-rate" hoverable>
-            <div className="metric-background-pattern" />
-            <div className="metric-background-circle" />
-            <div className="metric-content">
-              <div className="metric-info">
-                <Text className="metric-title">Pressure</Text>
-                <Title level={1} className="metric-value">
-                  {deviceInfo.flowRate}
-                </Title>
-                <Text className="metric-description">Bar</Text>
-              </div>
-              <div className="metric-icon">
-                <LineChartOutlined />
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={12} sm={12} md={8}>
-          <Card className="metric-card pressure" hoverable>
-            <div className="metric-background-pattern" />
-            <div className="metric-background-circle" />
-            <div className="metric-content">
-              <div className="metric-info">
-                <Text className="metric-title">Pressure 2</Text>
-                <Title level={1} className="metric-value">
-                  {deviceInfo.totalPressure}
-                </Title>
-                <Text className="metric-description">Bar</Text>
-              </div>
-              <div className="metric-icon">
-                <ApiOutlined />
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={12} sm={12} md={8}>
+      {/* Top Row: Battery & Map */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px', display: 'flex', alignItems: 'stretch' }}>
+        <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
           <Card
-            className={`metric-card ${deviceInfo.battery > 20 ? 'battery-good' : 'battery-low'
-              }`}
+            className={`metric-card ${deviceInfo.battery > 20 ? 'battery-good' : 'battery-low'}`}
             hoverable
+            style={{ flex: 1, minHeight: '300px' }}
           >
             <div className="metric-background-pattern" />
             <div className="metric-background-circle" />
-            <div className="metric-content">
-              <div className="metric-info">
-                <Text className="metric-title">Battery</Text>
-                <Title level={1} className="metric-value">
+            <div className="metric-content" style={{ flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
+              <div className="metric-info" style={{ marginBottom: '24px' }}>
+                <Text className="metric-title" style={{ fontSize: '18px' }}>Battery Level</Text>
+                <Title level={1} className="metric-value" style={{ fontSize: '64px', margin: '16px 0' }}>
                   {batteryPercent}
                   <span className="metric-unit">%</span>
                 </Title>
-                <Text className="metric-description">
-                  {batteryPercent > 20 ? 'Good' : 'Low'}
+                <Text className="metric-description" style={{ fontSize: '16px' }}>
+                  {batteryPercent > 20 ? 'Optimal Status' : 'Needs Charging'}
                 </Text>
               </div>
               <div className="metric-icon">
-                <div className="battery-icon">
+                <div className="battery-icon" style={{ transform: 'scale(1.5)', margin: '0 auto' }}>
                   <div className="battery-tip" />
                   <div
                     className="battery-fill"
@@ -547,97 +511,105 @@ const DeviceDashboard = () => {
             </div>
           </Card>
         </Col>
+
+        <Col xs={24} md={16} style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, height: '100%', minHeight: '300px' }}>
+            <ChartMapData />
+          </div>
+        </Col>
       </Row>
 
-      {/* Google Map and Line Chart Row */}
-      <div>
-        <ChartMapData />
-      </div>
-
-      {/* Solenoid Valve Controls */}
-      <Card className="valve-control-card">
-        <div className="valve-control-header">
-          <div className="valve-control-title">
-            <Title level={4}>
-              <ControlOutlined style={{ marginRight: '8px' }} />
-              Solenoid Valve Control
-            </Title>
-            <Badge count={activeValveCountV1toV8} style={{ backgroundColor: '#52c41a' }}>
-              <Tag className="max-active-tag">
-                <ExclamationCircleOutlined style={{ marginRight: '4px' }} />
-                MAX {MAX_ACTIVE_VALVES} ACTIVE
-              </Tag>
-            </Badge>
-          </div>
-          <Button
-            type="primary"
-            size="large"
-            icon={<SendOutlined />}
-            loading={isLoading}
-            onClick={() => handleSendCommand()}
-            className="send-command-button send-command-active"
-          >
-            {isLoading ? 'SENDING...' : 'SEND COMMAND'}
-          </Button>
-        </div>
-        <div className="valve-controls-grid">
-          {initialValveOrder.map((key, index) => {
-            const isOn = !!pendingDoStatusBits[index];
-            const label = `VALVE ${index + 1}`;
-            return (
-              <div key={key} className="valve-control">
-                <Button
-                  type={isOn ? 'primary' : 'default'}
-                  size="large"
-                  onClick={() => handleValveToggle(key)}
-                  disabled={isLoading}
-                  icon={isOn ? <CheckCircleOutlined /> : <PoweroffOutlined />}
-                  className={`valve-button ${isOn ? 'valve-on' : 'valve-off'}`}
-                >
-                  {isOn ? 'ON' : 'OFF'}
-                </Button>
-                <div className={`valve-label ${isOn ? 'valve-on' : 'valve-off'}`}>
-                  {label}
-                </div>
+      {/* Bottom Row: Controls & Status */}
+      <Row gutter={[24, 24]}>
+        {/* Solenoid Valve Controls */}
+        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
+          <Card className="valve-control-card" style={{ flex: 1 }}>
+            <div className="valve-control-header">
+              <div className="valve-control-title">
+                <Title level={4}>
+                  <ControlOutlined style={{ marginRight: '8px' }} />
+                  Outlet Valve Control
+                </Title>
+                <Badge count={activeValveCountV1toV8} style={{ backgroundColor: '#52c41a' }}>
+                  <Tag className="max-active-tag">
+                    <ExclamationCircleOutlined style={{ marginRight: '4px' }} />
+                    MAX {MAX_ACTIVE_VALVES} ACTIVE
+                  </Tag>
+                </Badge>
               </div>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* Live Status Dashboard */}
-      <Card className="status-dashboard-card">
-        <Title level={4} className="status-dashboard-title">
-          <DatabaseOutlined style={{ marginRight: '8px' }} />
-          Live Status Dashboard
-        </Title>
-        <Row gutter={[16, 24]}>
-          {initialValveOrder.map((key, index) => {
-            const isActive = !!diStatusBits[index];
-            const labelShort = `V${index + 1}`;
-            return (
-              <Col xs={6} sm={4} md={3} key={key}>
-                <div className={`status-item ${isActive ? 'status-active' : 'status-inactive'}`}>
-                  <Text className="status-label">{labelShort}</Text>
-                  <div className="status-indicator">
-                    <div className={`status-circle ${isActive ? 'status-active' : 'status-inactive'}`}>
-                      {isActive ? (
-                        <CheckCircleOutlined className="status-circle-icon active" />
-                      ) : (
-                        <PoweroffOutlined className="status-circle-icon inactive" />
-                      )}
-                      {isActive && <div className="status-ripple" />}
+              <Button
+                type="primary"
+                size="large"
+                icon={<SendOutlined />}
+                loading={isLoading}
+                onClick={() => handleSendCommand()}
+                className="send-command-button send-command-active"
+              >
+                {isLoading ? 'SENDING...' : 'SEND COMMAND'}
+              </Button>
+            </div>
+            <div className="valve-controls-grid">
+              {initialValveOrder.map((key, index) => {
+                const isOn = !!pendingDoStatusBits[index];
+                const label = `VALVE ${index + 1}`;
+                return (
+                  <div key={key} className="valve-control">
+                    <Button
+                      type={isOn ? 'primary' : 'default'}
+                      size="large"
+                      onClick={() => handleValveToggle(key)}
+                      disabled={isLoading}
+                      icon={isOn ? <CheckCircleOutlined /> : <PoweroffOutlined />}
+                      className={`valve-button ${isOn ? 'valve-on' : 'valve-off'}`}
+                    >
+                      {isOn ? 'ON' : 'OFF'}
+                    </Button>
+                    <div className={`valve-label ${isOn ? 'valve-on' : 'valve-off'}`}>
+                      {label}
                     </div>
-                    <Text className={`status-text ${isActive ? 'active' : 'inactive'}`}>
-                      {isActive ? 'ACTIVE' : 'STANDBY'}
-                    </Text>
                   </div>
-                </div>
-              </Col>
-            );
-          })}
-        </Row>
-      </Card>
+                );
+              })}
+            </div>
+          </Card>
+        </Col>
+
+        {/* Live Status Dashboard */}
+        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
+          <Card className="status-dashboard-card" style={{ flex: 1 }}>
+            <Title level={4} className="status-dashboard-title">
+              <DatabaseOutlined style={{ marginRight: '8px' }} />
+              Outlet Valve Status
+            </Title>
+            <Row gutter={[16, 24]}>
+              {initialValveOrder.map((key, index) => {
+                const isActive = !!diStatusBits[index];
+                const labelShort = `V${index + 1}`;
+                return (
+                  <Col xs={8} sm={8} md={8} key={key}>
+                    <div className={`status-item ${isActive ? 'status-active' : 'status-inactive'}`}>
+                      <Text className="status-label">{labelShort}</Text>
+                      <div className="status-indicator">
+                        <div className={`status-circle ${isActive ? 'status-active' : 'status-inactive'}`}>
+                          {isActive ? (
+                            <CheckCircleOutlined className="status-circle-icon active" />
+                          ) : (
+                            <PoweroffOutlined className="status-circle-icon inactive" />
+                          )}
+                          {isActive && <div className="status-ripple" />}
+                        </div>
+                        <Text className={`status-text ${isActive ? 'active' : 'inactive'}`}>
+                          {isActive ? 'ACTIVE' : 'STANDBY'}
+                        </Text>
+                      </div>
+                    </div>
+                  </Col>
+                );
+              })}
+            </Row>
+          </Card>
+        </Col>
+      </Row>
     </>
   );
 };

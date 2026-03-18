@@ -189,12 +189,12 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
     await resetShedulingApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve });
   };
 
-  const handleGetDeviceSettings = async () => {
+  const handleGetDeviceSettings = async (requestType) => {
     if (selectedValve === '') {
       message.warning('Please select a channel first.');
       return;
     }
-    await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve });
+    await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, request_type: requestType });
   };
 
   const handleValveChange = async (value) => {
@@ -310,9 +310,10 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
             {/* Actions */}
             <Space wrap style={{ marginTop: 24 }}>
-              <Button type="primary" size="large" icon={<SaveOutlined />} onClick={handleSaveApply} style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}>Save</Button>
-              <Button danger size="large" icon={<ReloadOutlined />} onClick={handleResetTotalizer}>Reset</Button>
-              <Button size="large" icon={<DownloadOutlined />} onClick={handleGetDeviceSettings} style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b', color: 'white' }}>Get</Button>
+              <Button type="primary" size="middle" icon={<SaveOutlined />} onClick={handleSaveApply} style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}>Save</Button>
+              {/* <Button danger size="middle" icon={<ReloadOutlined />} onClick={handleResetTotalizer}>Reset</Button> */}
+              <Button size="middle" icon={<DownloadOutlined />} onClick={() => handleGetDeviceSettings(0)} style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b', color: 'white' }}>Get Schedul</Button>
+              <Button size="middle" icon={<DownloadOutlined />} onClick={() => handleGetDeviceSettings(1)} style={{ backgroundColor: '#0ea5e9', borderColor: '#0ea5e9', color: 'white' }}>Get Setting Type</Button>
             </Space>
           </Form>
         </Card>

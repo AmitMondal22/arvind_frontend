@@ -28,6 +28,7 @@ import DeviceManagement from './pages/management/DeviceManagement';
 import ProjectManagement from './pages/management/ProjectManagement';
 import UserManagement from './pages/management/UserManagement';
 import ManageOrgProjectList from './pages/management/ManageOrgProjectList';
+import GetwayManage from './pages/management/GetwayManage';
 
 function App() {
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
@@ -46,7 +47,7 @@ function App() {
   }, []);
 
 
-  
+
 
   if (!isOnline) return <NoInternet />;
 
@@ -63,7 +64,7 @@ function App() {
       />
 
       {/* Private Routes */}
-      <Route path="/:organizationId/:projectId/:organizationName/:projectname" 
+      <Route path="/:organizationId/:projectId/:organizationName/:projectname"
         element={
           <PrivateRoute>
             <MainLayout>
@@ -73,7 +74,7 @@ function App() {
         }
       />
 
-       <Route path="/device/:organizationId/:projectId/:deviceId/:device/:device_name/:organizationName/:projectname" 
+      <Route path="/device/:organizationId/:projectId/:deviceId/:device/:device_name/:organizationName/:projectname"
         element={
           <PrivateRoute>
             <MainLayout>
@@ -84,8 +85,8 @@ function App() {
       />
 
 
-      
-    <Route
+
+      <Route
         path="/historical_data"
         element={
           <PrivateRoute>
@@ -95,12 +96,12 @@ function App() {
           </PrivateRoute>
         }
       />
-      
 
 
 
 
-   <Route
+
+      <Route
         path="/"
         element={
           <PrivateRoute>
@@ -133,8 +134,9 @@ function App() {
       <Route path="/management/project" element={<PrivateRoute><MainLayout><ProjectManagement /></MainLayout></PrivateRoute>} />
       <Route path="/management/user" element={<PrivateRoute><MainLayout><UserManagement /></MainLayout></PrivateRoute>} />
       <Route path="/management/device-list" element={<PrivateRoute><MainLayout><ManageOrgProjectList /></MainLayout></PrivateRoute>} />
+      <Route path="/management/getway" element={<PrivateRoute><MainLayout><GetwayManage /></MainLayout></PrivateRoute>} />
 
-      
+
 
 
 

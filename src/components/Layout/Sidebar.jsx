@@ -121,6 +121,7 @@ const Sidebar = ({ collapsed }) => {
       icon: <SettingOutlined />,
       label: "Management",
       children: [
+        { key: "/management/getway", label: "Getway" },
         { key: "/management/device", label: "Device Management" },
         { key: "/management/project", label: "Project Management" },
         { key: "/management/user", label: "Manage User" },
