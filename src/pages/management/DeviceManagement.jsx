@@ -95,7 +95,7 @@ const DeviceManagement = () => {
           <Form.Item name="device_name" label="Device Name" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="do_channel" label="DO Channel" rules={[{ required: true }]}>
+          <Form.Item name="do_channel" label="DO Channel" hidden initialValue={8}>
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item name="model" label="Model" rules={[{ required: true }]}>

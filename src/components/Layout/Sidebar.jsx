@@ -12,6 +12,8 @@ import {
   ApartmentOutlined,
   ProjectOutlined,
   DatabaseOutlined,
+  ClusterOutlined,
+  MobileOutlined,
 } from "@ant-design/icons";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -105,12 +107,12 @@ const Sidebar = ({ collapsed }) => {
   const menuMaster = [
     {
       key: "master",
-      icon: <ApartmentOutlined />,
-      label: "Master",
+      icon: <DatabaseOutlined />,
+      label: "Master Data",
       children: [
-        { key: "/master/organization", label: "Organization" },
-        { key: "/master/user", label: "User" },
-        { key: "/master/project", label: "Project" },
+        { key: "/master/organization", icon: <ApartmentOutlined />, label: "Organizations" },
+        { key: "/master/user", icon: <TeamOutlined />, label: "Users" },
+        { key: "/master/project", icon: <ProjectOutlined />, label: "Projects" },
       ]
     }
   ];
@@ -121,10 +123,10 @@ const Sidebar = ({ collapsed }) => {
       icon: <SettingOutlined />,
       label: "Management",
       children: [
-        { key: "/management/getway", label: "Getway" },
-        { key: "/management/device", label: "Device Management" },
-        { key: "/management/project", label: "Project Management" },
-        { key: "/management/user", label: "Manage User" },
+        { key: "/management/getway", icon: <ClusterOutlined />, label: "Gateways" },
+        { key: "/management/device", icon: <MobileOutlined />, label: "Devices" },
+        { key: "/management/project", icon: <ProjectOutlined />, label: "Projects" },
+        { key: "/management/user", icon: <TeamOutlined />, label: "Users" },
       ]
     }
   ];

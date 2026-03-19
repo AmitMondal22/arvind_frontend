@@ -194,7 +194,7 @@ const GetwayManage = () => {
                   maxLength={10} 
                   showCount 
                   style={{ borderRadius: 6 }} 
-                  disabled={!!editingId}
+                  readOnly={!!editingId}
                 />
               </Form.Item>
             </Col>

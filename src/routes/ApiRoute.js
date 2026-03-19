@@ -28,6 +28,7 @@ export const address = {
     SHEDULING_SAVE:`${BASEURL}/api/mqtt/publish_schedule`,
     GET_SHEDULING:`${BASEURL}/api/mqtt/read_sheduling`,
     RESET_SHEDULING:`${BASEURL}/api/mqtt/reset_sheduling`,
+    READ_LAST_DATA:`${BASEURL}/api/mqtt/read_last_data`,
 
     WEBSOSKET_RES:`${BASEURL}/api/device/waterflow_data_wfms`,
 

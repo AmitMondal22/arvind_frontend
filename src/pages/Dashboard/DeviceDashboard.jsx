@@ -27,6 +27,7 @@ import {
   WifiOutlined,
   ScheduleOutlined,
   EnvironmentOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 
 import {
@@ -82,7 +83,7 @@ const DeviceDashboard = () => {
     device_name,
   } = useParams();
   const navigate = useNavigate();
-  const { dashboardSwitchApi, requestWebsocketDataApi } = useDashboardDeviceApi();
+  const { dashboardSwitchApi, requestWebsocketDataApi, readLastDataApi } = useDashboardDeviceApi();
   const { apiDeviceInfo } = useDeviceApi();
 
   const resolvedDeviceName = device_name || device || '';
@@ -157,6 +158,26 @@ const DeviceDashboard = () => {
 
   const handleScheduleClick = () => setIsScheduleDrawerOpen(true);
   const handleScheduleDrawerClose = () => setIsScheduleDrawerOpen(false);
+
+  const handleRefreshData = async () => {
+    try {
+      if (!resolvedDevice || !resolvedDeviceIdNumber) return;
+      message.loading({ content: 'Requesting latest data...', key: 'refresh_data' });
+      const reqData = {
+        device: resolvedDevice,
+        device_id: resolvedDeviceIdNumber,
+        request_type: 1
+      };
+      const res = await readLastDataApi(reqData);
+      if (res?.status || res?.status === 'success') {
+         message.success({ content: 'Data refresh requested!', key: 'refresh_data', duration: 2 });
+      } else {
+         message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
+      }
+    } catch (e) {
+      message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
+    }
+  };
 
   const getSignalColor = (signal) => {
     const value = parseFloat(signal);
@@ -426,6 +447,29 @@ const DeviceDashboard = () => {
               <ClockCircleOutlined style={{ margin: '0 6px' }} />
               {deviceInfo.time}
             </Text>
+
+            <div className="battery-header-info" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(100, 116, 139, 0.05)', padding: '6px 12px', borderRadius: '12px', fontWeight: 600 }}>
+              <div className="battery-icon" style={{ transform: 'scale(0.8)', margin: 0 }}>
+                <div className="battery-tip" />
+                <div
+                  className="battery-fill"
+                  style={{
+                    width: `${Math.max(Number(batteryPercent), 8)}%`,
+                    background: `linear-gradient(90deg, ${getBatteryColor(
+                      Number(batteryPercent)
+                    )}, ${getBatteryColor(Number(batteryPercent))}dd)`,
+                  }}
+                >
+                  <div className="battery-shine" />
+                </div>
+                {Number(batteryPercent) <= 20 && (
+                  <ExclamationCircleOutlined className="battery-warning" />
+                )}
+              </div>
+              <span style={{ color: getBatteryColor(Number(batteryPercent)) }}>
+                {batteryPercent}%
+              </span>
+            </div>
             {/* <div className="signal-info">
               <WifiOutlined
                 style={{
@@ -449,6 +493,15 @@ const DeviceDashboard = () => {
               />
             </div> */}
             <Button
+              type="default"
+              icon={<ReloadOutlined />}
+              size="large"
+              onClick={handleRefreshData}
+              style={{ borderRadius: '8px', fontWeight: 600, color: '#64748b', borderColor: '#cbd5e1' }}
+            >
+              Refresh
+            </Button>
+            <Button
               type="primary"
               icon={<ScheduleOutlined />}
               size="large"
@@ -468,62 +521,10 @@ const DeviceDashboard = () => {
         valveStates={valveStates}
       />
 
-      {/* Top Row: Battery & Map */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px', display: 'flex', alignItems: 'stretch' }}>
-        <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Card
-            className={`metric-card ${deviceInfo.battery > 20 ? 'battery-good' : 'battery-low'}`}
-            hoverable
-            style={{ flex: 1, minHeight: '300px' }}
-          >
-            <div className="metric-background-pattern" />
-            <div className="metric-background-circle" />
-            <div className="metric-content" style={{ flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-              <div className="metric-info" style={{ marginBottom: '24px' }}>
-                <Text className="metric-title" style={{ fontSize: '18px' }}>Battery Level</Text>
-                <Title level={1} className="metric-value" style={{ fontSize: '64px', margin: '16px 0' }}>
-                  {batteryPercent}
-                  <span className="metric-unit">%</span>
-                </Title>
-                <Text className="metric-description" style={{ fontSize: '16px' }}>
-                  {batteryPercent > 20 ? 'Optimal Status' : 'Needs Charging'}
-                </Text>
-              </div>
-              <div className="metric-icon">
-                <div className="battery-icon" style={{ transform: 'scale(1.5)', margin: '0 auto' }}>
-                  <div className="battery-tip" />
-                  <div
-                    className="battery-fill"
-                    style={{
-                      width: `${Math.max(Number(batteryPercent), 8)}%`,
-                      background: `linear-gradient(90deg, ${getBatteryColor(
-                        Number(batteryPercent)
-                      )}, ${getBatteryColor(Number(batteryPercent))}dd)`,
-                    }}
-                  >
-                    <div className="battery-shine" />
-                  </div>
-                  {Number(batteryPercent) <= 20 && (
-                    <ExclamationCircleOutlined className="battery-warning" />
-                  )}
-                </div>
-              </div>
-            </div>
-          </Card>
-        </Col>
-
-        <Col xs={24} md={16} style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, height: '100%', minHeight: '300px' }}>
-            <ChartMapData />
-          </div>
-        </Col>
-      </Row>
-
-      {/* Bottom Row: Controls & Status */}
-      <Row gutter={[24, 24]}>
-        {/* Solenoid Valve Controls */}
-        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Card className="valve-control-card" style={{ flex: 1 }}>
+      {/* Top Row: Valve Controls (Full Width) */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} md={24}>
+          <Card className="valve-control-card">
             <div className="valve-control-header">
               <div className="valve-control-title">
                 <Title level={4}>
@@ -573,7 +574,10 @@ const DeviceDashboard = () => {
             </div>
           </Card>
         </Col>
+      </Row>
 
+      {/* Bottom Row: Status (Left) & Map (Right) */}
+      <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'stretch' }}>
         {/* Live Status Dashboard */}
         <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
           <Card className="status-dashboard-card" style={{ flex: 1 }}>
@@ -608,6 +612,13 @@ const DeviceDashboard = () => {
               })}
             </Row>
           </Card>
+        </Col>
+
+        {/* Map Component */}
+        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, height: '100%', minHeight: '300px' }}>
+            <ChartMapData />
+          </div>
         </Col>
       </Row>
     </>

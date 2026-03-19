@@ -111,37 +111,35 @@ const ChartMapData = () => {
 
   return (
     <Card className="map-card" style={{ height: '100%' }}>
-          <Title level={4} className="map-title">
-            <EnvironmentOutlined style={{ marginRight: "8px" }} />
-            Device Location
-          </Title>
-          <div style={{ height: "300px", width: "100%", position: "relative" }}>
-            <MapContainer
-              center={deviceLocation.center}
-              zoom={deviceLocation.zoom}
-              style={{ height: '100%', width: '100%', borderRadius: '12px', zIndex: 1 }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
-
-              <MapController center={deviceLocation.center} zoom={deviceLocation.zoom} />
-
-              {deviceInfo && (
-                <Marker position={deviceLocation.center} icon={deviceIcon}>
-                  <Popup>
-                    <div style={{ fontFamily: "inherit", padding: "4px" }}>
-                      <div style={{ marginBottom: "4px" }}><b>Name:</b> {deviceInfo.device_name}</div>
-                      <div style={{ marginBottom: "4px" }}><b>Model:</b> {deviceInfo.model}</div>
-                      <div><b>IMEI:</b> {deviceInfo.imei_no}</div>
-                    </div>
-                  </Popup>
-                </Marker>
-              )}
-            </MapContainer>
-          </div>
-        </Card>
+      <Title level={4} className="map-title">
+        <EnvironmentOutlined style={{ marginRight: "8px" }} />
+        Device Location
+      </Title>
+      <div style={{ height: "300px", width: "100%", position: "relative" }}>
+        <MapContainer
+          center={deviceLocation.center}
+          zoom={deviceLocation.zoom}
+          style={{ height: '100%', width: '100%', borderRadius: '12px', zIndex: 1 }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          />
+          <MapController center={deviceLocation.center} zoom={deviceLocation.zoom} />
+          {deviceInfo && (
+            <Marker position={deviceLocation.center} icon={deviceIcon}>
+              <Popup>
+                <div style={{ fontFamily: "inherit", padding: "4px" }}>
+                  <div style={{ marginBottom: "4px" }}><b>Name:</b> {deviceInfo.device_name}</div>
+                  <div style={{ marginBottom: "4px" }}><b>Model:</b> {deviceInfo.model}</div>
+                  <div><b>IMEI:</b> {deviceInfo.imei_no}</div>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+        </MapContainer>
+      </div>
+    </Card>
   );
 };
 

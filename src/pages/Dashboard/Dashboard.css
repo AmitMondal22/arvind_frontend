@@ -63,7 +63,7 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  background: #1677ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,8 +173,8 @@
 }
 
 .stats-card.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  background: #1677ff;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
 }
 
 .stats-card.total:hover {
@@ -183,8 +183,8 @@
 }
 
 .stats-card.online {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  box-shadow: 0 8px 32px rgba(17, 153, 142, 0.3);
+  background: #52c41a;
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.2);
 }
 
 .stats-card.online:hover {
@@ -193,8 +193,8 @@
 }
 
 .stats-card.offline {
-  background: linear-gradient(135deg, #ee5a6f 0%, #f29263 100%);
-  box-shadow: 0 8px 32px rgba(238, 90, 111, 0.3);
+  background: #ff4d4f;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
 }
 
 .stats-card.offline:hover {
@@ -483,20 +483,19 @@
   }
 }
 
-/* BUTTERY SMOOTH TABS */
+/* BUTTERY SMOOTH TABS - SIMPLE 2-3 COLOR SOLID THEME */
 .buttery-smooth-tabs .ant-tabs-nav {
   margin: 0 !important;
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(8px) !important;
+  background: #ffffff !important;
   padding-top: 14px !important;
-  border-bottom: 2px solid rgba(226, 232, 240, 0.6) !important;
-  border-radius: 16px 16px 0 0 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  border-radius: 12px 12px 0 0 !important;
 }
 
 .buttery-smooth-tabs .ant-tabs-tab {
   padding: 14px 32px !important;
-  border-radius: 12px 12px 0 0 !important;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  border-radius: 8px 8px 0 0 !important;
+  transition: all 0.2s ease !important;
   color: #64748b !important;
   font-weight: 600 !important;
   font-size: 16px !important;
@@ -504,21 +503,21 @@
 }
 
 .buttery-smooth-tabs .ant-tabs-tab:hover {
-  color: #6366f1 !important;
-  background: rgba(99, 102, 241, 0.04) !important;
+  color: #1677ff !important;
+  background: #f8fafc !important;
 }
 
 .buttery-smooth-tabs .ant-tabs-tab-active {
-  background: rgba(99, 102, 241, 0.08) !important;
+  background: #eff6ff !important;
 }
 
 .buttery-smooth-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #6366f1 !important;
-  text-shadow: 0 0 1px rgba(99, 102, 241, 0.4) !important;
+  color: #1677ff !important;
+  text-shadow: none !important;
 }
 
 .buttery-smooth-tabs .ant-tabs-ink-bar {
-  background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%) !important;
+  background: #1677ff !important;
   height: 4px !important;
   border-radius: 4px 4px 0 0 !important;
   bottom: 0px !important;

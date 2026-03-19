@@ -120,10 +120,10 @@ const UserManagement = () => {
   ];
 
   return (
-    <Card title="User Management (Assign Devices)" extra={<Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Assign Device to User</Button>}>
+    <Card title="User Access (Device Assignment)" extra={<Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Grant User Access</Button>}>
       <Table columns={columns} dataSource={data} rowKey="manage_user_device_id" loading={loading} />
       
-      <Modal title={editingItem ? "Edit Assignment" : "Assign Device to User"} open={isModalVisible} onOk={handleOk} onCancel={() => setIsModalVisible(false)}>
+      <Modal title={editingItem ? "Edit Access" : "Grant Device Access to User"} open={isModalVisible} onOk={handleOk} onCancel={() => setIsModalVisible(false)}>
         <Form form={form} layout="vertical">
           <Form.Item name="organization_id" label="Organization" rules={[{ required: true }]}>
             <Select placeholder="Select Organization">

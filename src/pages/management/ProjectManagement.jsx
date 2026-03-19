@@ -91,7 +91,7 @@ const ProjectManagement = () => {
   ];
 
   return (
-    <Card title="Project Management (Assign Devices)">
+    <Card title="Project Mapping (Device Assignment)">
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={16} align="bottom">
           <Col span={6}>
@@ -117,7 +117,7 @@ const ProjectManagement = () => {
           </Col>
           <Col span={6}>
             <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>Assign Device</Button>
+              <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>Map Device to Project</Button>
             </Form.Item>
           </Col>
         </Row>

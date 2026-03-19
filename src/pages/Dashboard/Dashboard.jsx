@@ -268,7 +268,6 @@ const Dashboard = () => {
             </div>
             
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
-               {/* Controls if any */}
             </div>
           </div>
 
@@ -347,12 +346,18 @@ const Dashboard = () => {
           size="large"
           centered
         >
-          <TabPane tab="OMS Devices" key="OMS">
+          <TabPane 
+            tab={<span style={{ display: 'flex', alignItems: 'center' }}><AppstoreOutlined style={{ marginRight: 8, fontSize: '18px' }} />OMS Devices</span>} 
+            key="OMS"
+          >
              <div style={{ padding: "28px" }}>
                {renderDeviceGrid(omsList)}
              </div>
           </TabPane>
-          <TabPane tab="AMS Devices" key="AMS">
+          <TabPane 
+            tab={<span style={{ display: 'flex', alignItems: 'center' }}><HddOutlined style={{ marginRight: 8, fontSize: '18px' }} />AMS Devices</span>} 
+            key="AMS"
+          >
              <div style={{ padding: "28px" }}>
                {renderDeviceGrid(amsList)}
              </div>

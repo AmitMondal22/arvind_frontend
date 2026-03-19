@@ -96,8 +96,6 @@ const DeviceReport = () => {
       Date: row.date,
       Time: row.time,
       Device: row.device,
-      'Pressure 1': row.flow_rate1,
-      'Pressure 2': row.pressure,
       'Battery %': `${row.bat_v}%`,
       'VALVE 1': row.di_status[0] === '1' ? 'ON' : 'OFF',
       'VALVE 2': row.di_status[1] === '1' ? 'ON' : 'OFF',
@@ -105,8 +103,6 @@ const DeviceReport = () => {
       'VALVE 4': row.di_status[3] === '1' ? 'ON' : 'OFF',
       'VALVE 5': row.di_status[4] === '1' ? 'ON' : 'OFF',
       'VALVE 6': row.di_status[5] === '1' ? 'ON' : 'OFF',
-      'VALVE 7': row.di_status[6] === '1' ? 'ON' : 'OFF',
-      'VALVE 8': row.di_status[7] === '1' ? 'ON' : 'OFF',
     }));
 
     // Create worksheet and workbook
@@ -116,9 +112,8 @@ const DeviceReport = () => {
 
     // Set column widths
     worksheet['!cols'] = [
-      { wch: 12 }, { wch: 10 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, 
-      { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 },
-      { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }
+      { wch: 12 }, { wch: 10 }, { wch: 15 }, { wch: 12 }, 
+      { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }
     ];
 
     // Generate file name with date range
@@ -201,20 +196,6 @@ const DeviceReport = () => {
       responsive: ['md', 'lg', 'xl'],
     },
     {
-      title: 'Pressure 1',
-      dataIndex: 'flow_rate1',
-      key: 'flow_rate1',
-      width: 100,
-      responsive: ['xs', 'sm', 'md', 'lg', 'xl'],
-    },
-    {
-      title: 'Pressure 2',
-      dataIndex: 'pressure',
-      key: 'pressure',
-      width: 100,
-      responsive: ['lg', 'xl'],
-    },
-    {
       title: 'Battery',
       dataIndex: 'bat_v',
       key: 'bat_v',
@@ -285,24 +266,6 @@ const DeviceReport = () => {
           width: 65,
           align: 'center',
           render: (diStatus) => renderValveStatus(diStatus, 5),
-          responsive: ['xl'],
-        },
-        {
-          title: 'V7',
-          dataIndex: 'di_status',
-          key: 'valve7',
-          width: 65,
-          align: 'center',
-          render: (diStatus) => renderValveStatus(diStatus, 6),
-          responsive: ['xl'],
-        },
-        {
-          title: 'V8',
-          dataIndex: 'di_status',
-          key: 'valve8',
-          width: 65,
-          align: 'center',
-          render: (diStatus) => renderValveStatus(diStatus, 7),
           responsive: ['xl'],
         },
       ],

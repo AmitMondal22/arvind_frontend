@@ -298,6 +298,39 @@ function useDashboardDeviceApi() {
 
 
 
+    const readLastDataApi = async (data) => {
+        try {
+           const response = await axios.post(address.READ_LAST_DATA, data, 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status == 200 || response.status == 201) {
+                return response.data;
+            }
+            if (response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "An error occurred" };
+            
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 401) {
+                    logoutAndRedirect();
+                    return { status: false, error: "Unauthorized access" };
+                }
+                const errorResult = await handelError(error.response.status);
+                return { status: false, error: "An error occurred" };
+            } else {
+                console.error("Unexpected error:", error);
+                return { status: false, error: "Unexpected error occurred" };
+            }
+        }
+    };
+
     const requestWebsocketDataApi = async (data) => {
         try {
            
@@ -381,7 +414,7 @@ function useDashboardDeviceApi() {
     };
 
 
-    return { dashboardDeviceList, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi };
+    return { dashboardDeviceList, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi, readLastDataApi };
 }
 
 export default useDashboardDeviceApi;

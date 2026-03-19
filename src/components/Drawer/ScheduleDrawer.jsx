@@ -42,9 +42,9 @@ function parseHHmmssToDayjs(v) {
 }
 
 const valveOptions = [
-  { label: 'Channel1', value: 1 }, { label: 'Channel2', value: 2 },
-  { label: 'Channel3', value: 3 }, { label: 'Channel4', value: 4 },
-  { label: 'Channel5', value: 5 }, { label: 'Channel6', value: 6 },
+  { label: 'Valve1', value: 1 }, { label: 'Valve2', value: 2 },
+  { label: 'Valve3', value: 3 }, { label: 'Valve4', value: 4 },
+  { label: 'Valve5', value: 5 }, { label: 'Valve6', value: 6 },
   // { label: 'Channel7', value: 7 }, { label: 'Channel8', value: 8 }
 ];
 
@@ -157,7 +157,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
   /** Actions */
   const handleSaveApply = async () => {
     if (selectedValve === '' || selectedSetting === '') {
-      message.warning('Please select a channel and setting type.');
+      message.warning('Please select a Valve and setting type.');
       return;
     }
 
@@ -183,7 +183,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
   const handleResetTotalizer = async () => {
     if (selectedValve === '') {
-      message.warning('Please select a channel first.');
+      message.warning('Please select a Valve first.');
       return;
     }
     await resetShedulingApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve });
@@ -191,7 +191,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
   const handleGetDeviceSettings = async (requestType) => {
     if (selectedValve === '') {
-      message.warning('Please select a channel first.');
+      message.warning('Please select a valve first.');
       return;
     }
     await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, request_type: requestType });
@@ -241,9 +241,9 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
           <Form form={form} layout="vertical">
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12}>
-                <Form.Item label="Select a Channel" required>
+                <Form.Item label="Select a Valve" required>
                   <Select
-                    placeholder="Select a Channel"
+                    placeholder="Select a valve"
                     value={selectedValve}
                     onChange={handleValveChange}
                     size="large"
