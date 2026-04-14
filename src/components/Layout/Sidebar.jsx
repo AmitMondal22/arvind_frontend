@@ -14,6 +14,7 @@ import {
   DatabaseOutlined,
   ClusterOutlined,
   MobileOutlined,
+  BranchesOutlined,
 } from "@ant-design/icons";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -127,6 +128,7 @@ const Sidebar = ({ collapsed }) => {
         { key: "/management/device", icon: <MobileOutlined />, label: "Devices" },
         { key: "/management/project", icon: <ProjectOutlined />, label: "Projects" },
         { key: "/management/user", icon: <TeamOutlined />, label: "Users" },
+        { key: "/management/branch", icon: <BranchesOutlined />, label: "Branches" },
       ]
     }
   ];

@@ -20,7 +20,7 @@ const { TabPane } = Tabs;
 const POLL_INTERVAL_MS = 30000; // 30 seconds
 
 const Dashboard = () => {
-  const { dashboardDeviceList, deviceStatusUpdateApi } = useDashboardDeviceApi();
+  const { dashboardDeviceListType, deviceStatusUpdateApi } = useDashboardDeviceApi();
   const { organizationId, projectId, organizationName, projectname } = useParams();
   const navigate = useNavigate();
   const [deviceList, setDeviceList] = useState([]);
@@ -33,26 +33,27 @@ const Dashboard = () => {
   // ✅ Silent refresh — updates list without showing loading spinner
   const refreshDeviceList = useCallback(async () => {
     try {
-      const dev_list = await dashboardDeviceList(organizationId, projectId);
+      const dev_list = await dashboardDeviceListType(organizationId, projectId, activeTab);
       if (dev_list.status === "success") {
         setDeviceList(dev_list.data);
       }
     } catch (error) {
       console.error("Silent refresh failed:", error);
     }
-  }, [organizationId, projectId]);
+  }, [organizationId, projectId, activeTab, dashboardDeviceListType]);
 
   // ✅ Initial load — shows loading spinner
   const getDeviceList = async () => {
     setLoading(true);
     try {
-      const dev_list = await dashboardDeviceList(organizationId, projectId);
+      const dev_list = await dashboardDeviceListType(organizationId, projectId, activeTab);
       if (dev_list.status === "success") {
         setDeviceList(dev_list.data);
       } else {
         setDeviceList([]);
       }
     } catch (error) {
+      console.error("Dashboard device list load failed:", error);
       setDeviceList([]);
     } finally {
       setLoading(false);
@@ -86,7 +87,7 @@ const Dashboard = () => {
   // ✅ Initial load
   useEffect(() => {
     getDeviceList();
-  }, [organizationId, projectId]);
+  }, [organizationId, projectId, activeTab]);
 
   // ✅ Auto-poll every 30s — silent background refresh
   useEffect(() => {
@@ -114,7 +115,11 @@ const Dashboard = () => {
   };
 
   const handleDeviceClick = (deviceId, device, device_name) => {
-    navigate(`/device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
+    if (activeTab === 'AMS') {
+        navigate(`/ams-device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
+    } else {
+        navigate(`/device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
+    }
   };
 
   const getHeaderTitle = () => {
@@ -123,17 +128,8 @@ const Dashboard = () => {
     return `${orgName} - ${projName}`;
   };
 
-  // Split logic based on name or device id
-  const isAms = (item) => {
-    const dName = String(item.device_name || "").toUpperCase();
-    const dId = String(item.device || "").toUpperCase();
-    return dName.includes('AMS') || dId.includes('AMS');
-  };
-
-  const omsList = deviceList.filter(d => !isAms(d));
-  const amsList = deviceList.filter(d => isAms(d));
-
-  const displayList = activeTab === "OMS" ? omsList : amsList;
+  // Use API results directly depending on tab selection
+  const displayList = deviceList;
 
   const getDeviceCounts = (list) => {
     const onlineDevices = list.filter(device => {
@@ -351,7 +347,7 @@ const Dashboard = () => {
             key="OMS"
           >
              <div style={{ padding: "28px" }}>
-               {renderDeviceGrid(omsList)}
+               {renderDeviceGrid(displayList)}
              </div>
           </TabPane>
           <TabPane 
@@ -359,7 +355,7 @@ const Dashboard = () => {
             key="AMS"
           >
              <div style={{ padding: "28px" }}>
-               {renderDeviceGrid(amsList)}
+               {renderDeviceGrid(displayList)}
              </div>
           </TabPane>
         </Tabs>

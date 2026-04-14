@@ -16,6 +16,7 @@ import Device from './pages/device/Device';
 import Dashboard from './pages/Dashboard/Dashboard';
 import MyProfile from './pages/MyProfile/MyProfile';
 import DeviceDashboard from './pages/Dashboard/DeviceDashboard';
+import AmsDeviceDashboard from './pages/Dashboard/AmsDeviceDashboard';
 import DeviceReport from './pages/report/DeviceReport';
 
 // Master
@@ -29,6 +30,8 @@ import ProjectManagement from './pages/management/ProjectManagement';
 import UserManagement from './pages/management/UserManagement';
 import ManageOrgProjectList from './pages/management/ManageOrgProjectList';
 import GetwayManage from './pages/management/GetwayManage';
+import BranchManagement from './pages/management/BranchManagement';
+import BranchConfig from './pages/management/BranchConfig';
 
 function App() {
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
@@ -79,6 +82,16 @@ function App() {
           <PrivateRoute>
             <MainLayout>
               <DeviceDashboard />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route path="/ams-device/:organizationId/:projectId/:deviceId/:device/:device_name/:organizationName/:projectname"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <AmsDeviceDashboard />
             </MainLayout>
           </PrivateRoute>
         }
@@ -135,6 +148,8 @@ function App() {
       <Route path="/management/user" element={<PrivateRoute><MainLayout><UserManagement /></MainLayout></PrivateRoute>} />
       <Route path="/management/device-list" element={<PrivateRoute><MainLayout><ManageOrgProjectList /></MainLayout></PrivateRoute>} />
       <Route path="/management/getway" element={<PrivateRoute><MainLayout><GetwayManage /></MainLayout></PrivateRoute>} />
+      <Route path="/management/branch" element={<PrivateRoute><MainLayout><BranchManagement /></MainLayout></PrivateRoute>} />
+      <Route path="/management/branch/:branchId/config" element={<PrivateRoute><MainLayout><BranchConfig /></MainLayout></PrivateRoute>} />
 
 
 

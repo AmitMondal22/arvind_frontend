@@ -19,7 +19,9 @@ const Login = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [bubbles, setBubbles] = useState([]);
-  const { apiLogin } = useAuthApi();
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [mobileNumber, setMobileNumber] = useState("");
+  const { apiLogin, apiSendOtp, apiVerifyOtp } = useAuthApi();
 
   // Generate random bubble properties
   const generateBubble = useCallback(() => {
@@ -78,55 +80,65 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const res_data = await apiLogin(values.username, values.password);
-      if (res_data.status === false) {
-        message.error(res_data.error);
-        return;
-      }
-
-      const { user_data, token } = res_data.data;
-      if (values.remember) {
-        localStorage.setItem("username", values.username);
-        localStorage.setItem("password", values.password);
+      
+      if (!isOtpSent) {
+        // Send OTP Flow
+        const mobile = values.mobile_number;
+        const res_data = await apiSendOtp(mobile);
+        
+        if (res_data.status === false) {
+          message.error(res_data.error || "Failed to send OTP.");
+          return;
+        }
+        
+        message.success("OTP sent to your mobile number!");
+        setMobileNumber(mobile);
+        setIsOtpSent(true);
       } else {
-        localStorage.removeItem("username");
-        localStorage.removeItem("password");
+        // Verify OTP Flow
+        const res_data = await apiVerifyOtp(mobileNumber, values.otp);
+        
+        if (res_data.status === false) {
+          message.error(res_data.error || "Invalid OTP.");
+          return;
+        }
+
+        const { user_data, token } = res_data.data;
+        if (values.remember) {
+          localStorage.setItem("mobile_number", mobileNumber);
+        } else {
+          localStorage.removeItem("mobile_number");
+        }
+        message.success("Login successful!");
+        login(user_data, token);
+
+        let resData = await getMenuDataData(token)
+        let examp = resData.data;
+
+        if (examp && examp.length > 0 && examp[0].projects && examp[0].projects.length > 0) {
+          redirectFun(`/${examp[0].organization_id}/${examp[0].projects[0].project_id}/${examp[0].organization_name}/${examp[0].projects[0].project_name}`)
+          navigate(`/${examp[0].organization_id}/${examp[0].projects[0].project_id}/${examp[0].organization_name}/${examp[0].projects[0].project_name}`);
+        } else {
+          navigate("/");
+        }
       }
-      message.success("Login successful!");
-      login(user_data, token);
-
-      console.log(">>>>><,,,,,,");
-      let resData = await getMenuDataData(token)
-      let examp = resData.data;
-
-
-      console.log("mmmuuuuuuuuuuuuuuu", examp);
-      console.log(`/${examp[0].organization_id}/${examp[0].projects[0].project_id}/${examp[0].organization_name}/${examp[0].projects[0].project_name}`);
-
-
-      redirectFun(`/${examp[0].organization_id}/${examp[0].projects[0].project_id}/${examp[0].organization_name}/${examp[0].projects[0].project_name}`)
-
-      navigate(`/${examp[0].organization_id}/${examp[0].projects[0].project_id}/${examp[0].organization_name}/${examp[0].projects[0].project_name}`);
-
-
-
-
-
 
     } catch (error) {
-      message.error("Login failed. Please check your credentials.");
+      if (!isOtpSent) {
+        message.error("Failed to send OTP.");
+      } else {
+        message.error("Login failed. Please check your OTP.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    const storedPassword = localStorage.getItem("password");
-    if (storedUsername && storedPassword) {
+    const storedMobile = localStorage.getItem("mobile_number");
+    if (storedMobile) {
       form.setFieldsValue({
-        username: storedUsername,
-        password: storedPassword,
+        mobile_number: storedMobile,
         remember: true,
       });
     }
@@ -163,26 +175,36 @@ const Login = () => {
           <div className="login-welcome-badge">Welcome back</div>
           <Title level={3}>Login to your account</Title>
           <Form form={form} name="login" layout="vertical" onFinish={onFinish} className="login-form">
-            <Form.Item
-              name="username"
-              label="Username"
-              rules={[{ required: true, message: "Please input your Username!" }]}
-            >
-              <Input prefix={<UserOutlined />} placeholder="Enter your username" />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[{ required: true, message: "Please input your Password!" }]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="Enter your password" />
-            </Form.Item>
-            <Form.Item name="remember" valuePropName="checked">
-              <div className="login-options">
-                <Checkbox>Remember Me</Checkbox>
-                <Link className="forgot-link">Forgot Password?</Link>
+            {!isOtpSent ? (
+               <Form.Item
+                 name="mobile_number"
+                 label="Mobile Number"
+                 rules={[{ required: true, message: "Please input your Mobile Number!" }]}
+               >
+                 <Input prefix={<UserOutlined />} placeholder="Enter your mobile number" />
+               </Form.Item>
+            ) : (
+               <Form.Item
+                 name="otp"
+                 label="OTP"
+                 rules={[{ required: true, message: "Please input the OTP sent to your mobile!" }]}
+               >
+                 <Input.Password prefix={<LockOutlined />} placeholder="Enter the 6-digit OTP" />
+               </Form.Item>
+            )}
+            {!isOtpSent && (
+              <Form.Item name="remember" valuePropName="checked">
+                <div className="login-options">
+                  <Checkbox>Remember Me</Checkbox>
+                  {/* <Link className="forgot-link">Forgot Password?</Link> */}
+                </div>
+              </Form.Item>
+            )}
+            {isOtpSent && (
+              <div className="login-options" style={{ marginBottom: 20 }}>
+                 <Link className="forgot-link" onClick={() => setIsOtpSent(false)}>Change Mobile Number</Link>
               </div>
-            </Form.Item>
+            )}
             <Form.Item>
               <Button
                 type="primary"
@@ -190,7 +212,7 @@ const Login = () => {
                 className="login-button"
                 loading={loading}
               >
-                Login
+                {isOtpSent ? "Login" : "Send OTP"}
               </Button>
             </Form.Item>
           </Form>

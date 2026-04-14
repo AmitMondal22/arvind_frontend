@@ -70,6 +70,56 @@ function useDashboardDeviceApi() {
 
 
 
+    const dashboardDeviceListType = async (organizationId, projectId,device_type) => {
+        try {
+           
+           const response = await axios.post(address.DASHBOARD_DEVICE_LIST_TYPE,{
+                organization_id: organizationId,
+                project_id: projectId,
+                device_type: device_type
+            }, 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // example
+                }
+            });
+            console.log(">>>>>>>>", response.status);
+            if (response.status == 200 || response.status == 201) {
+                console.log("XXXXXXXXXX", response.status);
+                return response.data;
+            }
+
+            if (response.status === 401) {
+                    console.log('Unauthorized access - logging out');
+                    logoutAndRedirect();
+                    return { status: false, error: "Unauthorized access" };
+            }
+            const errorResult = await handleError(response.status);
+            return { status: false, error: errorResult.message || "An error occurred" };
+            
+        } catch (error) {
+                if (error.response) {
+                    console.log("Axios error status:", error.response.status);
+
+                    if (error.response.status === 401) {
+                        console.log('Unauthorized access - logging out');
+                        logoutAndRedirect();
+                        return{status:false,error:"Unauthorized access - logging out"};  // Stop further execution
+                    }
+
+                    const errorResult = await handelError(error.response.status);
+                     return{status:false,error:"Unauthorized access - logging out"};  // Stop further execution
+                } else {
+                    console.error("Unexpected error:", error);
+                    const errorResult = await handelError(error);
+                    return{status:false,error:"Unexpected error occurred"};  // Stop further execution
+                }
+            }
+    };
+
+
+
 
     const dashboardSwitchApi = async (data) => {
         try {
@@ -414,7 +464,7 @@ function useDashboardDeviceApi() {
     };
 
 
-    return { dashboardDeviceList, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi, readLastDataApi };
+    return { dashboardDeviceList, dashboardDeviceListType, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi, readLastDataApi };
 }
 
 export default useDashboardDeviceApi;

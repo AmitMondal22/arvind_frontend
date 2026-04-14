@@ -35,7 +35,8 @@ const { Option } = Select;
  * ============================ */
 function parseHHmmssToDayjs(v) {
   if (!v) return null;
-  const parts = v.split(':');
+  const str = String(v);
+  const parts = str.split(':');
   if (parts.length < 2) return null;
   const [hh, mm, ss = '00'] = parts;
   return dayjs(`${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:${ss.padStart(2, '0')}`, 'HH:mm:ss');
@@ -45,19 +46,16 @@ const valveOptions = [
   { label: 'Valve1', value: 1 }, { label: 'Valve2', value: 2 },
   { label: 'Valve3', value: 3 }, { label: 'Valve4', value: 4 },
   { label: 'Valve5', value: 5 }, { label: 'Valve6', value: 6 },
-  // { label: 'Channel7', value: 7 }, { label: 'Channel8', value: 8 }
 ];
 
-
-
 const dayOptions = [
-  { label: 'Sun', value: 'sun' },
-  { label: 'Mon', value: 'mon' },
-  { label: 'Tue', value: 'tue' },
-  { label: 'Wed', value: 'wed' },
-  { label: 'Thu', value: 'thu' },
-  { label: 'Fri', value: 'fri' },
-  { label: 'Sat', value: 'sat' }
+  { label: 'Sun', value: 'Sun' },
+  { label: 'Mon', value: 'Mon' },
+  { label: 'Tue', value: 'Tue' },
+  { label: 'Wed', value: 'Wed' },
+  { label: 'Thu', value: 'Thu' },
+  { label: 'Fri', value: 'Fri' },
+  { label: 'Sat', value: 'Sat' }
 ];
 
 const settingOptions = [
@@ -65,14 +63,22 @@ const settingOptions = [
   { label: 'Manual', value: 1 }
 ];
 
-function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form) {
+/**
+ * Auto-fill form from schedule data (API response or WebSocket)
+ */
+function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve) {
   if (!sched) return;
 
-  // Setting type
+  // Setting type (do_type)
   if (sched.do_type !== undefined && sched.do_type !== null) {
     setSelectedSetting(sched.do_type);
   } else {
     setSelectedSetting('');
+  }
+
+  // Auto-select valve from do_no
+  if (setSelectedValve && sched.do_no !== undefined && sched.do_no !== null) {
+    setSelectedValve(sched.do_no);
   }
 
   // Time fields
@@ -81,11 +87,12 @@ function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form) {
     one_off_time: parseHHmmssToDayjs(sched.one_off_time)
   });
 
-  // Days
-  if (sched.days) {
-    setSelectedDays(sched.days.split(','));
+  // Days — handle both comma-separated string formats
+  if (sched.days && typeof sched.days === 'string' && sched.days.trim() !== '') {
+    const daysArr = sched.days.split(',').map(d => d.trim()).filter(Boolean);
+    setSelectedDays(daysArr);
   } else {
-    setSelectedDays(dayOptions.map(d => d.value));
+    setSelectedDays([]);
   }
 }
 
@@ -121,7 +128,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
     }
   }, [open, form]);
 
-  /** WebSocket setup */
+  /** WebSocket setup — auto-fill on incoming scheduling data */
   useEffect(() => {
     if (!open || !device_Id) {
       if (wsRef.current) wsRef.current.close();
@@ -140,9 +147,23 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
     ws.onmessage = (evt) => {
       try {
-        const data = JSON.parse(JSON.parse(evt.data));
+        let rawData = evt.data;
+        // Handle double-encoded JSON
+        let data;
+        try {
+          const first = JSON.parse(rawData);
+          data = typeof first === 'string' ? JSON.parse(first) : first;
+        } catch {
+          data = JSON.parse(rawData);
+        }
+
         const sched = data?.shedulingdata || data?.schedulingdata;
-        if (sched) mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form);
+        if (sched) {
+          console.log('WebSocket schedule data received:', sched);
+          // Auto-fill form including valve selection
+          mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve);
+          message.info(`Schedule updated for Valve ${sched.do_no} via device`);
+        }
       } catch (e) {
         console.error('WS message error:', e);
       }
@@ -173,12 +194,18 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       one_off_time: values.one_off_time ? dayjs(values.one_off_time).format('HH:mm:ss') : '00:00:00',
       two_on_time: '00:00:00',
       two_off_time: '00:00:00',
-      datalog_sec: 120, // dummy value to satisfy backend pydantic model constraints
+      datalog_sec: 120,
       days: selectedDays.join(',')
     };
 
-    await shedulingDataApi(payload);
-    message.success('Settings saved and applied successfully!');
+    const res = await shedulingDataApi(payload);
+    if (res?.status === 'success' && res?.data) {
+      // Auto-fill form from API response
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+      message.success('Settings saved and applied successfully!');
+    } else {
+      message.success('Settings saved!');
+    }
   };
 
   const handleResetTotalizer = async () => {
@@ -194,13 +221,26 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       message.warning('Please select a valve first.');
       return;
     }
-    await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, request_type: requestType });
+    const res = await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, request_type: requestType });
+    // Auto-fill from get response
+    if (res?.status === 'success' && res?.data) {
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+      message.success('Schedule data loaded from device');
+    }
   };
 
   const handleValveChange = async (value) => {
     setSelectedValve(value);
+    // Reset form before loading
+    form.resetFields();
+    setSelectedSetting('');
+    setSelectedDays([]);
+
     const res = await valveDataApi({ organization_id: organizationId, device_id: deviceId, device, do_no: value });
-    if (res?.status === 'success') mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form);
+    if (res?.status === 'success' && res?.data) {
+      // Auto-fill from API response
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+    }
   };
 
   const onAllDaysChange = (e) => {

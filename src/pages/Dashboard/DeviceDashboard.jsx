@@ -111,6 +111,8 @@ const DeviceDashboard = () => {
     device: device,
   });
 
+
+
   const [doStatusBits, setDoStatusBits] = useState(Array(9).fill(false));
   const [diStatusBits, setDiStatusBits] = useState(Array(9).fill(false));
   const [pendingDoStatusBits, setPendingDoStatusBits] = useState(Array(9).fill(false));

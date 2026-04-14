@@ -49,8 +49,42 @@ function useAuthApi() {
                 }
             }
     };
+    const apiSendOtp = async (mobile_number) => {
+        try {
+            const response = await axios.post(address.SEND_OTP, { mobile_number });
+            if (response.status !== 200) {
+                const errorResult = await handelError(response.status);
+                return { status: false, error: "Failed to send OTP" };
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Axios OTP send error:", error);
+            return { status: false, error: error.response?.data?.detail || "Unexpected error occurred" };
+        }
+    };
 
-    return { apiLogin };
+    const apiVerifyOtp = async (mobile_number, otp) => {
+        try {
+            const response = await axios.post(address.VERIFY_OTP, { mobile_number, otp });
+            if (response.status !== 200) {
+                if (response.status === 401) {
+                    logoutAndRedirect();
+                    return { status: false, error: "Unauthorized access - logging out" };
+                }
+                const errorResult = await handelError(response.status);
+                return { status: false, error: "OTP Verification failed" };
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Axios OTP verify error:", error);
+            if (error.response && error.response.status === 401) {
+                logoutAndRedirect();
+            }
+            return { status: false, error: error.response?.data?.detail || "Unexpected error occurred" };
+        }
+    };
+
+    return { apiLogin, apiSendOtp, apiVerifyOtp };
 }
 
 export default useAuthApi;

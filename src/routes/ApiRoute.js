@@ -1,9 +1,9 @@
 // const BASEURL = "http://arvind-backend.iotblitz.in";
-// const BASEURL = "http://localhost:8051";
-const BASEURL = "http://192.168.29.210:8051";
+const BASEURL = "http://localhost:8051";
+// const BASEURL = "http://192.168.29.210:8051";
 
-const WSBASEURL = "ws://192.168.29.210:8051";
-// const WSBASEURL = "ws://localhost:8051";
+// const WSBASEURL = "ws://192.168.29.210:8051";
+const WSBASEURL = "ws://localhost:8051";
 // const WSBASEURL = "ws://arvind-backend.iotblitz.in";
 
 
@@ -19,10 +19,13 @@ export const address = {
 
 
     LOGIN: `${BASEURL}/api/auth/login`,
+    SEND_OTP: `${BASEURL}/api/auth/send-otp`,
+    VERIFY_OTP: `${BASEURL}/api/auth/verify-otp`,
 
 
     MENU_ORG_PROJECT_LIST: `${BASEURL}/api/client/manage_organization_project/list`,
     DASHBOARD_DEVICE_LIST: `${BASEURL}/api/client/project/devices/list`,
+    DASHBOARD_DEVICE_LIST_TYPE: `${BASEURL}/api/client/project/devices/list/type`,
     SWITCH_API:`${BASEURL}/api/mqtt/publish_all_digital_output`,
     VALVE_DATA:`${BASEURL}/api/mqtt/publish_schedule_data`,
     SHEDULING_SAVE:`${BASEURL}/api/mqtt/publish_schedule`,
@@ -87,5 +90,33 @@ export const address = {
     MANAGEMENT_GATEWAY_ADD: `${BASEURL}/api/management_gateway/add`,
     MANAGEMENT_GATEWAY_EDIT: `${BASEURL}/api/management_gateway/edit`,
     MANAGEMENT_GATEWAY_DELETE: `${BASEURL}/api/management_gateway/delete`,
+
+    // Branch Management
+    MANAGE_BRANCH_LIST: `${BASEURL}/api/client/manage_branch/list`,
+    MANAGE_BRANCH_ADD: `${BASEURL}/api/client/manage_branch/add`,
+    MANAGE_BRANCH_EDIT: `${BASEURL}/api/client/manage_branch/edit`,
+    MANAGE_BRANCH_DELETE: `${BASEURL}/api/client/manage_branch/delete`,
+    MANAGE_BRANCH_AVAILABLE_NUMBERS: `${BASEURL}/api/client/manage_branch/available_branch_numbers`,
+
+    // Branch Device Assignment
+    MANAGE_BRANCH_DEVICE_LIST: `${BASEURL}/api/client/manage_branch/device_list`,
+    MANAGE_BRANCH_DEVICE_ADD: `${BASEURL}/api/client/manage_branch/add_device`,
+    MANAGE_BRANCH_DEVICE_DELETE: `${BASEURL}/api/client/manage_branch/delete_device`,
+
+    // Branch Scheduling
+    MANAGE_BRANCH_SCHEDULING_GET: `${BASEURL}/api/client/manage_branch/get_scheduling`,
+    MANAGE_BRANCH_SCHEDULING_SAVE: `${BASEURL}/api/client/manage_branch/save_scheduling`,
+    MANAGE_BRANCH_SCHEDULING_RESET: `${BASEURL}/api/client/manage_branch/reset_scheduling`,
+
+    // Branch Switch (Manual Mode)
+    MANAGE_BRANCH_SWITCH: `${BASEURL}/api/client/manage_branch/switch`,
+
+    // Branch Config (Full Control Panel)
+    MANAGE_BRANCH_CONFIG_GET: `${BASEURL}/api/client/manage_branch/get_config`,
+
+    // Branch-Level (ALL devices) Switch / Schedule
+    MANAGE_BRANCH_SWITCH_ALL: `${BASEURL}/api/client/manage_branch/switch_all`,
+    MANAGE_BRANCH_SCHEDULE_SAVE_ALL: `${BASEURL}/api/client/manage_branch/schedule_save_all`,
+    MANAGE_BRANCH_SCHEDULE_RESET_ALL: `${BASEURL}/api/client/manage_branch/schedule_reset_all`,
 
 };
