@@ -504,46 +504,103 @@
 }
 
 /* ============================
- * Pipeline Solenoid Valve Visual
+ * Pipeline Solenoid Valve Visual — Premium
  * ============================ */
 .pipeline-container {
   position: relative;
-  padding: 20px 10px 10px;
+  padding: 10px 16px 16px;
   overflow-x: auto;
+  overflow-y: visible;
 }
 
-/* Main horizontal pipe */
+/* ---- Main horizontal pipe ---- */
 .pipeline-main-pipe {
   position: absolute;
-  bottom: 70px;
-  left: 0;
-  right: 0;
-  height: 14px;
-  background: linear-gradient(180deg, #b0bec5 0%, #78909c 30%, #546e7a 70%, #78909c 100%);
-  border-radius: 7px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.2);
+  bottom: 48px;
+  left: 8px;
+  right: 8px;
+  height: 18px;
+  background: linear-gradient(
+    180deg,
+    #cfd8dc 0%,
+    #b0bec5 15%,
+    #90a4ae 35%,
+    #78909c 50%,
+    #90a4ae 65%,
+    #b0bec5 85%,
+    #cfd8dc 100%
+  );
+  border-radius: 9px;
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.18),
+    inset 0 2px 4px rgba(255,255,255,0.35),
+    inset 0 -2px 3px rgba(0,0,0,0.08);
   z-index: 1;
 }
 
-/* Row of valve assemblies */
+.pipe-highlight {
+  position: absolute;
+  top: 3px;
+  left: 20px;
+  right: 20px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  border-radius: 2px;
+}
+
+.pipe-end-cap {
+  position: absolute;
+  top: -3px;
+  width: 12px;
+  height: 24px;
+  background: linear-gradient(180deg, #b0bec5 0%, #78909c 50%, #b0bec5 100%);
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+.pipe-end-left  { left: -4px; }
+.pipe-end-right { right: -4px; }
+
+/* ---- Valve row ---- */
 .pipeline-valves-row {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
   position: relative;
   z-index: 2;
-  gap: 4px;
-  padding-bottom: 22px;
+  gap: 6px;
+  padding-bottom: 8px;
 }
 
-/* Each valve + pipe + badge assembly */
+/* ---- Each assembly ---- */
 .pipeline-valve-assembly {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  min-width: 60px;
+  min-width: 64px;
   flex: 1;
+  transition: transform 0.25s ease;
+}
+
+.pipeline-valve-assembly:hover {
+  transform: translateY(-2px);
+}
+
+/* ---- Valve label (top) ---- */
+.valve-status-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #90a4ae;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.valve-status-label.label-active {
+  color: #2e7d32;
 }
 
 /* ---- Solenoid Valve ---- */
@@ -551,141 +608,220 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease;
+  position: relative;
 }
 
-.solenoid-valve:hover {
-  transform: scale(1.05);
+/* Wiring */
+.solenoid-wires {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
-/* Actuator (top cap + coil) */
+.wire {
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+}
+
+.wire-red {
+  background: linear-gradient(180deg, #e53935,  #c62828);
+  box-shadow: 0 0 3px rgba(229, 57, 53, 0.4);
+}
+
+.wire-black {
+  background: linear-gradient(180deg, #424242, #212121);
+}
+
+/* Actuator / Coil housing */
 .solenoid-actuator {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.solenoid-cap {
-  width: 20px;
-  height: 8px;
-  background: linear-gradient(180deg, #455a64 0%, #37474f 100%);
+.actuator-top {
+  width: 24px;
+  height: 6px;
+  background: linear-gradient(180deg, #546e7a, #37474f);
   border-radius: 3px 3px 0 0;
-  box-shadow: 0 -1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 -1px 2px rgba(0,0,0,0.15);
 }
 
-.solenoid-coil {
-  width: 26px;
-  height: 16px;
-  background: linear-gradient(180deg, #37474f 0%, #263238 100%);
-  border-radius: 3px;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 3px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
-
-.coil-wire {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-}
-
-.coil-wire.left {
-  background: #e53935;
-  box-shadow: 0 0 4px rgba(229, 57, 53, 0.5);
-}
-
-.coil-wire.right {
-  background: #43a047;
-  box-shadow: 0 0 4px rgba(67, 160, 71, 0.5);
-}
-
-/* Valve body */
-.solenoid-body {
+.actuator-body {
   width: 30px;
-  height: 22px;
-  background: linear-gradient(180deg, #546e7a 0%, #37474f 50%, #455a64 100%);
-  border-radius: 4px;
+  height: 20px;
+  background: linear-gradient(
+    180deg,
+    #455a64 0%,
+    #37474f 30%,
+    #263238 60%,
+    #37474f 100%
+  );
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.1);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.06);
   position: relative;
 }
 
-.solenoid-body-inner {
-  width: 14px;
-  height: 14px;
-  background: linear-gradient(135deg, #263238, #37474f);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.solenoid-indicator {
+/* LED indicator on actuator */
+.actuator-led {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   transition: all 0.4s ease;
 }
 
-.solenoid-indicator.indicator-on {
-  background: #4caf50;
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.7), 0 0 16px rgba(76, 175, 80, 0.3);
-  animation: indicatorPulse 1.5s ease-in-out infinite;
+.actuator-led.led-on {
+  background: #69f0ae;
+  box-shadow: 0 0 6px rgba(105, 240, 174, 0.8), 0 0 14px rgba(105, 240, 174, 0.4);
+  animation: ledBlink 2s ease-in-out infinite;
 }
 
-.solenoid-indicator.indicator-off {
+.actuator-led.led-off {
   background: #616161;
-  box-shadow: none;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
 }
 
-/* Valve ports (left/right stubs) */
-.solenoid-ports {
+/* Valve body (globe) */
+.solenoid-body {
+  width: 36px;
+  height: 28px;
+  background: linear-gradient(
+    180deg,
+    #607d8b 0%,
+    #546e7a 20%,
+    #455a64 50%,
+    #546e7a 80%,
+    #607d8b 100%
+  );
+  border-radius: 6px;
   display: flex;
-  justify-content: space-between;
-  width: 44px;
-  margin-top: -2px;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.3),
+    inset 0 2px 3px rgba(255,255,255,0.08),
+    inset 0 -1px 2px rgba(0,0,0,0.15);
+  position: relative;
+  transition: box-shadow 0.4s ease;
+  margin-top: -1px;
 }
 
-.port {
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(180deg, #546e7a 0%, #455a64 100%);
+.solenoid-body.body-active {
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.3),
+    0 0 12px rgba(76, 175, 80, 0.25),
+    inset 0 2px 3px rgba(255,255,255,0.08);
+}
+
+.body-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 10px;
+  background: radial-gradient(ellipse, rgba(76,175,80,0.15) 0%, transparent 70%);
+  animation: glowPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.body-center {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #37474f, #263238);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.body-arrow {
+  font-size: 7px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1;
+}
+
+/* Union fitting below valve */
+.union-fitting {
+  width: 20px;
+  height: 6px;
+  background: linear-gradient(180deg, #b0bec5 0%, #78909c 50%, #b0bec5 100%);
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  margin-top: -1px;
 }
 
-/* Vertical pipe connecting valve to main pipe */
+/* ---- Vertical pipe ---- */
 .pipeline-vertical-pipe {
-  width: 12px;
-  height: 40px;
-  background: linear-gradient(90deg, #b0bec5 0%, #78909c 40%, #546e7a 70%, #78909c 100%);
+  width: 14px;
+  height: 44px;
+  background: linear-gradient(
+    90deg,
+    #cfd8dc 0%,
+    #b0bec5 20%,
+    #90a4ae 45%,
+    #78909c 55%,
+    #90a4ae 80%,
+    #b0bec5 100%
+  );
   border-radius: 2px;
   position: relative;
   overflow: hidden;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-  transition: background 0.3s ease;
+  box-shadow:
+    2px 0 4px rgba(0,0,0,0.08),
+    -1px 0 3px rgba(0,0,0,0.05);
+  transition: all 0.4s ease;
 }
 
 .pipeline-vertical-pipe.pipe-active {
-  background: linear-gradient(90deg, #81c784 0%, #4caf50 40%, #388e3c 70%, #4caf50 100%);
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.3), 2px 0 4px rgba(0,0,0,0.1);
+  background: linear-gradient(
+    90deg,
+    #a5d6a7 0%,
+    #81c784 20%,
+    #66bb6a 45%,
+    #4caf50 55%,
+    #66bb6a 80%,
+    #81c784 100%
+  );
+  box-shadow:
+    0 0 10px rgba(76, 175, 80, 0.2),
+    2px 0 4px rgba(0,0,0,0.08);
 }
 
-/* Water flow animation inside pipe */
+.pipe-shine {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+  border-radius: 1px;
+}
+
+/* Water flow */
 .water-flow-animation {
   position: absolute;
   top: -100%;
   left: 0;
   right: 0;
   height: 100%;
-  background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.5) 60%, transparent 100%);
-  animation: waterFlowDown 1.2s linear infinite;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255,255,255,0.3) 30%,
+    rgba(255,255,255,0.6) 50%,
+    rgba(255,255,255,0.3) 70%,
+    transparent 100%
+  );
+  animation: waterFlowDown 1s linear infinite;
+}
+
+.water-flow-animation.delay {
+  animation-delay: 0.5s;
 }
 
 @keyframes waterFlowDown {
@@ -693,58 +829,97 @@
   100% { top: 100%; }
 }
 
-/* T-junction (where vertical meets horizontal) */
-.pipeline-t-junction {
-  width: 22px;
-  height: 10px;
-  background: linear-gradient(180deg, #90a4ae 0%, #607d8b 50%, #78909c 100%);
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  margin-top: -2px;
-  transition: background 0.3s ease;
-}
-
-.pipeline-t-junction.junction-active {
-  background: linear-gradient(180deg, #a5d6a7 0%, #4caf50 50%, #66bb6a 100%);
-  box-shadow: 0 0 6px rgba(76, 175, 80, 0.3), 0 2px 4px rgba(0,0,0,0.15);
-}
-
-/* Status badge (RUNNING / STANDBY) */
-.valve-status-badge {
-  margin-top: 14px;
-  padding: 4px 10px;
+/* ---- Elbow connector ---- */
+.pipeline-elbow {
+  width: 24px;
+  height: 12px;
+  background: linear-gradient(180deg, #b0bec5 0%, #90a4ae 50%, #b0bec5 100%);
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  margin-top: -1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease;
+}
+
+.pipeline-elbow.elbow-active {
+  background: linear-gradient(180deg, #a5d6a7 0%, #66bb6a 50%, #a5d6a7 100%);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.2), 0 2px 4px rgba(0,0,0,0.12);
+}
+
+.elbow-ring {
+  width: 18px;
+  height: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(0,0,0,0.05));
+  border-radius: 2px;
+}
+
+/* ---- Status badge ---- */
+.valve-status-badge {
+  margin-top: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   text-align: center;
-  min-width: 64px;
+  min-width: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   transition: all 0.3s ease;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 .valve-status-badge.badge-running {
   background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.35);
+  box-shadow: 0 3px 10px rgba(67, 160, 71, 0.35);
+}
+
+.valve-status-badge.badge-running .badge-dot {
+  background: #b9f6ca;
+  box-shadow: 0 0 6px rgba(185, 246, 202, 0.8);
+  animation: dotPulse 1.5s ease-in-out infinite;
 }
 
 .valve-status-badge.badge-standby {
-  background: linear-gradient(135deg, #90a4ae 0%, #78909c 100%);
+  background: linear-gradient(135deg, #b0bec5 0%, #90a4ae 100%);
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(120, 144, 156, 0.25);
+  box-shadow: 0 2px 6px rgba(120, 144, 156, 0.2);
 }
 
-/* Valve label below badge */
-.valve-status-label {
-  margin-top: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #546e7a;
-  letter-spacing: 0.5px;
+.valve-status-badge.badge-standby .badge-dot {
+  background: rgba(255,255,255,0.5);
 }
 
-/* Indicator pulse animation */
+/* ---- Animations ---- */
+@keyframes ledBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.7); }
+}
+
 @keyframes indicatorPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(76,175,80,0.7), 0 0 16px rgba(76,175,80,0.3); }
   50%      { box-shadow: 0 0 12px rgba(76,175,80,0.9), 0 0 24px rgba(76,175,80,0.5); }
@@ -829,17 +1004,21 @@
     gap: 2px;
   }
   .pipeline-valve-assembly {
-    min-width: 48px;
+    min-width: 50px;
   }
-  .solenoid-coil { width: 22px; height: 14px; }
-  .solenoid-cap { width: 16px; height: 6px; }
-  .solenoid-body { width: 26px; height: 18px; }
-  .solenoid-ports { width: 36px; }
-  .pipeline-vertical-pipe { height: 30px; width: 10px; }
-  .pipeline-t-junction { width: 18px; height: 8px; }
-  .valve-status-badge { font-size: 7px; min-width: 50px; padding: 3px 6px; }
-  .valve-status-label { font-size: 9px; }
-  .pipeline-main-pipe { height: 10px; bottom: 62px; }
+  .actuator-body { width: 24px; height: 16px; }
+  .actuator-top { width: 20px; height: 5px; }
+  .solenoid-body { width: 30px; height: 22px; }
+  .solenoid-wires { gap: 6px; }
+  .wire { height: 8px; }
+  .union-fitting { width: 16px; height: 5px; }
+  .pipeline-vertical-pipe { height: 32px; width: 12px; }
+  .pipeline-elbow { width: 20px; height: 10px; }
+  .valve-status-badge { font-size: 7px; min-width: 52px; padding: 3px 6px; }
+  .valve-status-label { font-size: 8px; }
+  .pipeline-main-pipe { height: 14px; bottom: 40px; }
+  .body-center { width: 12px; height: 12px; }
+  .body-arrow { font-size: 5px; }
 }
 
 @media (max-width: 576px) {

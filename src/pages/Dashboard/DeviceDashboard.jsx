@@ -580,7 +580,6 @@ const DeviceDashboard = () => {
 
       {/* Bottom Row: Status (Left) & Map (Right) */}
       <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'stretch' }}>
-        {/* Live Status Dashboard */}
         <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
           <Card className="status-dashboard-card" style={{ flex: 1 }}>
             <Title level={4} className="status-dashboard-title">
@@ -590,55 +589,73 @@ const DeviceDashboard = () => {
 
             {/* Pipeline Valve Visual */}
             <div className="pipeline-container">
-              {/* Main horizontal pipe */}
-              <div className="pipeline-main-pipe" />
+              {/* Main horizontal pipe with end caps */}
+              <div className="pipeline-main-pipe">
+                <div className="pipe-end-cap pipe-end-left" />
+                <div className="pipe-end-cap pipe-end-right" />
+                <div className="pipe-highlight" />
+              </div>
 
               {/* Valve assemblies */}
               <div className="pipeline-valves-row">
                 {initialValveOrder.map((key, index) => {
                   const isActive = !!diStatusBits[index];
                   return (
-                    <div key={key} className="pipeline-valve-assembly">
-                      {/* Solenoid Valve SVG */}
+                    <div key={key} className={`pipeline-valve-assembly ${isActive ? 'assembly-active' : ''}`}>
+                      {/* Valve label on top */}
+                      <div className={`valve-status-label ${isActive ? 'label-active' : ''}`}>
+                        Valve {index + 1}
+                      </div>
+
+                      {/* Solenoid Valve */}
                       <div className={`solenoid-valve ${isActive ? 'valve-running' : 'valve-standby'}`}>
-                        {/* Coil / Actuator top */}
+                        {/* Wiring connectors */}
+                        <div className="solenoid-wires">
+                          <div className="wire wire-red" />
+                          <div className="wire wire-black" />
+                        </div>
+
+                        {/* Actuator / Coil housing */}
                         <div className="solenoid-actuator">
-                          <div className="solenoid-coil">
-                            <div className="coil-wire left" />
-                            <div className="coil-wire right" />
-                          </div>
-                          <div className="solenoid-cap" />
-                        </div>
-
-                        {/* Valve body */}
-                        <div className="solenoid-body">
-                          <div className="solenoid-body-inner">
-                            <div className={`solenoid-indicator ${isActive ? 'indicator-on' : 'indicator-off'}`} />
+                          <div className="actuator-top" />
+                          <div className="actuator-body">
+                            <div className={`actuator-led ${isActive ? 'led-on' : 'led-off'}`} />
                           </div>
                         </div>
 
-                        {/* Inlet/Outlet ports */}
-                        <div className="solenoid-ports">
-                          <div className="port port-left" />
-                          <div className="port port-right" />
+                        {/* Valve body (globe shape) */}
+                        <div className={`solenoid-body ${isActive ? 'body-active' : ''}`}>
+                          {isActive && <div className="body-glow" />}
+                          <div className="body-center">
+                            <div className="body-arrow">▼</div>
+                          </div>
                         </div>
+
+                        {/* Union fitting below valve */}
+                        <div className="union-fitting" />
                       </div>
 
-                      {/* Vertical pipe connecting to main */}
+                      {/* Vertical pipe */}
                       <div className={`pipeline-vertical-pipe ${isActive ? 'pipe-active' : ''}`}>
-                        {isActive && <div className="water-flow-animation" />}
+                        {isActive && (
+                          <>
+                            <div className="water-flow-animation" />
+                            <div className="water-flow-animation delay" />
+                          </>
+                        )}
+                        <div className="pipe-shine" />
                       </div>
 
-                      {/* T-junction connector */}
-                      <div className={`pipeline-t-junction ${isActive ? 'junction-active' : ''}`} />
+                      {/* Elbow connector to main pipe */}
+                      <div className={`pipeline-elbow ${isActive ? 'elbow-active' : ''}`}>
+                        <div className="elbow-ring" />
+                      </div>
 
                       {/* Status badge */}
                       <div className={`valve-status-badge ${isActive ? 'badge-running' : 'badge-standby'}`}>
+                        <span className={`badge-dot ${isActive ? 'dot-running' : ''}`} />
                         {isActive ? 'RUNNING' : 'STANDBY'}
                       </div>
-
-                      {/* Valve label */}
-                      <div className="valve-status-label">V{index + 1}</div>
                     </div>
                   );
                 })}
