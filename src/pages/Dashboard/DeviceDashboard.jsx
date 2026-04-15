@@ -587,32 +587,63 @@ const DeviceDashboard = () => {
               <DatabaseOutlined style={{ marginRight: '8px' }} />
               Outlet Valve Status
             </Title>
-            <Row gutter={[16, 24]}>
-              {initialValveOrder.map((key, index) => {
-                const isActive = !!diStatusBits[index];
-                const labelShort = `V${index + 1}`;
-                return (
-                  <Col xs={8} sm={8} md={8} key={key}>
-                    <div className={`status-item ${isActive ? 'status-active' : 'status-inactive'}`}>
-                      <Text className="status-label">{labelShort}</Text>
-                      <div className="status-indicator">
-                        <div className={`status-circle ${isActive ? 'status-active' : 'status-inactive'}`}>
-                          {isActive ? (
-                            <CheckCircleOutlined className="status-circle-icon active" />
-                          ) : (
-                            <PoweroffOutlined className="status-circle-icon inactive" />
-                          )}
-                          {isActive && <div className="status-ripple" />}
+
+            {/* Pipeline Valve Visual */}
+            <div className="pipeline-container">
+              {/* Main horizontal pipe */}
+              <div className="pipeline-main-pipe" />
+
+              {/* Valve assemblies */}
+              <div className="pipeline-valves-row">
+                {initialValveOrder.map((key, index) => {
+                  const isActive = !!diStatusBits[index];
+                  return (
+                    <div key={key} className="pipeline-valve-assembly">
+                      {/* Solenoid Valve SVG */}
+                      <div className={`solenoid-valve ${isActive ? 'valve-running' : 'valve-standby'}`}>
+                        {/* Coil / Actuator top */}
+                        <div className="solenoid-actuator">
+                          <div className="solenoid-coil">
+                            <div className="coil-wire left" />
+                            <div className="coil-wire right" />
+                          </div>
+                          <div className="solenoid-cap" />
                         </div>
-                        <Text className={`status-text ${isActive ? 'active' : 'inactive'}`}>
-                          {isActive ? 'ACTIVE' : 'STANDBY'}
-                        </Text>
+
+                        {/* Valve body */}
+                        <div className="solenoid-body">
+                          <div className="solenoid-body-inner">
+                            <div className={`solenoid-indicator ${isActive ? 'indicator-on' : 'indicator-off'}`} />
+                          </div>
+                        </div>
+
+                        {/* Inlet/Outlet ports */}
+                        <div className="solenoid-ports">
+                          <div className="port port-left" />
+                          <div className="port port-right" />
+                        </div>
                       </div>
+
+                      {/* Vertical pipe connecting to main */}
+                      <div className={`pipeline-vertical-pipe ${isActive ? 'pipe-active' : ''}`}>
+                        {isActive && <div className="water-flow-animation" />}
+                      </div>
+
+                      {/* T-junction connector */}
+                      <div className={`pipeline-t-junction ${isActive ? 'junction-active' : ''}`} />
+
+                      {/* Status badge */}
+                      <div className={`valve-status-badge ${isActive ? 'badge-running' : 'badge-standby'}`}>
+                        {isActive ? 'RUNNING' : 'STANDBY'}
+                      </div>
+
+                      {/* Valve label */}
+                      <div className="valve-status-label">V{index + 1}</div>
                     </div>
-                  </Col>
-                );
-              })}
-            </Row>
+                  );
+                })}
+              </div>
+            </div>
           </Card>
         </Col>
 
