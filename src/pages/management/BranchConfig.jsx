@@ -56,6 +56,12 @@ const settingTypeOptions = [
   { label: 'Manual', value: 1 }
 ];
 
+const slotOptions = [
+  { label: 'Slot 1', value: 0 },
+  { label: 'Slot 2', value: 1 },
+  { label: 'Slot 3', value: 2 }
+];
+
 /* ─── Shared Styles ─── */
 const glassCard = {
   borderRadius: 16,
@@ -150,7 +156,9 @@ const BranchConfig = () => {
 
   // Scheduling mode state
   const [schedValve, setSchedValve] = useState(null);
+  const [schedSlot, setSchedSlot] = useState(undefined);
   const [schedSetting, setSchedSetting] = useState(undefined);
+  const [schedStatus, setSchedStatus] = useState(true);
   const [selectedDays, setSelectedDays] = useState(dayOptions.map(d => d.value));
   const [scheduleForm] = Form.useForm();
   const [scheduleLoading, setScheduleLoading] = useState(false);
@@ -185,7 +193,9 @@ const BranchConfig = () => {
   const handleModeChange = (val) => {
     setActiveMode(val);
     setSchedValve(null);
+    setSchedSlot(undefined);
     setSchedSetting(undefined);
+    setSchedStatus(true);
     scheduleForm.resetFields();
     setSelectedDays(dayOptions.map(d => d.value));
   };
@@ -212,7 +222,9 @@ const BranchConfig = () => {
   /* ═══ SCHEDULING MODE ═══ */
   const handleSelectValve = (valveNo) => {
     setSchedValve(valveNo);
+    setSchedSlot(undefined);
     setSchedSetting(undefined);
+    setSchedStatus(true);
     scheduleForm.resetFields();
     setSelectedDays(dayOptions.map(d => d.value));
 
@@ -220,6 +232,8 @@ const BranchConfig = () => {
     const bs = branchSchedule?.[`valve_${valveNo}`] || {};
     if (bs.has_schedule) {
       setSchedSetting(bs.do_type);
+      if (bs.slot !== undefined && bs.slot !== null) setSchedSlot(Number(bs.slot));
+      if (bs.status !== undefined && bs.status !== null) setSchedStatus(Number(bs.status) === 1);
       scheduleForm.setFieldsValue({
         one_on_time: parseTimeToDayjs(bs.one_on_time),
         one_off_time: parseTimeToDayjs(bs.one_off_time)
@@ -233,6 +247,8 @@ const BranchConfig = () => {
       const vd = device.valves?.[`valve_${valveNo}`] || {};
       if (vd.has_schedule) {
         setSchedSetting(vd.do_type);
+        if (vd.slot !== undefined && vd.slot !== null) setSchedSlot(Number(vd.slot));
+        if (vd.status !== undefined && vd.status !== null) setSchedStatus(Number(vd.status) === 1);
         scheduleForm.setFieldsValue({
           one_on_time: parseTimeToDayjs(vd.one_on_time),
           one_off_time: parseTimeToDayjs(vd.one_off_time)
@@ -245,6 +261,7 @@ const BranchConfig = () => {
 
   const handleSaveSchedule = async () => {
     if (schedValve === null) { message.warning('Please select a valve first'); return; }
+    if (schedSlot === undefined) { message.warning('Please select a Slot first'); return; }
     if (schedSetting === undefined) { message.warning('Please select a Setting Type'); return; }
     const values = scheduleForm.getFieldsValue();
     const payload = {
@@ -258,6 +275,8 @@ const BranchConfig = () => {
       two_off_time: '00:00:00',
       datalog_sec: 120,
       days: selectedDays.join(','),
+      slot: schedSlot,
+      status: schedStatus ? 1 : 0,
       client_id: clientId
     };
     setScheduleLoading(true);
@@ -280,7 +299,9 @@ const BranchConfig = () => {
     if (res?.status) {
       message.success('Schedule reset for all devices!');
       scheduleForm.resetFields();
+      setSchedSlot(undefined);
       setSchedSetting(undefined);
+      setSchedStatus(true);
       setSelectedDays(dayOptions.map(d => d.value));
       fetchConfig();
     } else message.error(res?.error || 'Failed to reset');
@@ -991,13 +1012,28 @@ const BranchConfig = () => {
 
                 <Form form={scheduleForm} layout="vertical">
                   <Row gutter={[20, 0]}>
-                    <Col xs={24} sm={8}>
+                    <Col xs={12} sm={6}>
+                      <Form.Item label={<Text strong>Slot</Text>} required>
+                        <Select
+                          placeholder="Select Slot"
+                          value={schedSlot}
+                          onChange={setSchedSlot}
+                          size="large" style={{ width: '100%' }}
+                        >
+                          {slotOptions.map(s => (
+                            <Option key={s.value} value={s.value}>{s.label}</Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={12} sm={6}>
                       <Form.Item label={<Text strong>Setting Type</Text>} required>
                         <Select
                           placeholder="Select Setting Type"
                           value={schedSetting}
                           onChange={setSchedSetting}
                           size="large" allowClear style={{ width: '100%' }}
+                          disabled={schedSlot === undefined}
                         >
                           {settingTypeOptions.map(s => (
                             <Option key={s.value} value={s.value}>{s.label}</Option>
@@ -1005,17 +1041,32 @@ const BranchConfig = () => {
                         </Select>
                       </Form.Item>
                     </Col>
-                    <Col xs={12} sm={8}>
+                    <Col xs={12} sm={6}>
                       <Form.Item name="one_on_time" label={<Text strong>Set On Time</Text>} required>
                         <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="ON time" />
                       </Form.Item>
                     </Col>
-                    <Col xs={12} sm={8}>
+                    <Col xs={12} sm={6}>
                       <Form.Item name="one_off_time" label={<Text strong>Set Off Time</Text>} required>
                         <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="OFF time" />
                       </Form.Item>
                     </Col>
                   </Row>
+
+                  {/* Enable / Disable Schedule */}
+                  <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <Text strong style={{ fontSize: 13 }}>Enable Schedule</Text>
+                    <Switch
+                      checked={schedStatus}
+                      onChange={(checked) => setSchedStatus(checked)}
+                      checkedChildren="Enabled"
+                      unCheckedChildren="Disabled"
+                      style={{ backgroundColor: schedStatus ? '#22c55e' : '#ef4444' }}
+                    />
+                    <Tag color={schedStatus ? 'green' : 'red'} style={{ borderRadius: 6, fontSize: 12 }}>
+                      {schedStatus ? 'Active' : 'Inactive'}
+                    </Tag>
+                  </div>
 
                   <Divider style={{ margin: '8px 0 18px 0' }} />
 
