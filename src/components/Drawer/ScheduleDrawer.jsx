@@ -77,26 +77,26 @@ const slotOptions = [
 function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve, setSelectedSlot, setScheduleStatus) {
   if (!sched) return;
 
-  // Setting type (do_type)
+  // Setting type (do_type) — coerce to number for Select match
   if (sched.do_type !== undefined && sched.do_type !== null) {
-    setSelectedSetting(sched.do_type);
+    setSelectedSetting(Number(sched.do_type));
   } else {
     setSelectedSetting('');
   }
 
-  // Auto-select valve from do_no
+  // Auto-select valve from do_no — coerce to number for Select match
   if (setSelectedValve && sched.do_no !== undefined && sched.do_no !== null) {
-    setSelectedValve(sched.do_no);
+    setSelectedValve(Number(sched.do_no));
   }
 
-  // Auto-select slot
+  // Auto-select slot — coerce to number for Select match
   if (setSelectedSlot && sched.slot !== undefined && sched.slot !== null) {
-    setSelectedSlot(sched.slot);
+    setSelectedSlot(Number(sched.slot));
   }
 
-  // Status (enable/disable)
+  // Status (enable/disable) — coerce to number then boolean
   if (setScheduleStatus && sched.status !== undefined && sched.status !== null) {
-    setScheduleStatus(sched.status === 1 ? true : false);
+    setScheduleStatus(Number(sched.status) === 1);
   }
 
   // Time fields
