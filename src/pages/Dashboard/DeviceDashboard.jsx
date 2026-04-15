@@ -172,9 +172,9 @@ const DeviceDashboard = () => {
       };
       const res = await readLastDataApi(reqData);
       if (res?.status || res?.status === 'success') {
-         message.success({ content: 'Data refresh requested!', key: 'refresh_data', duration: 2 });
+        message.success({ content: 'Data refresh requested!', key: 'refresh_data', duration: 2 });
       } else {
-         message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
+        message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
       }
     } catch (e) {
       message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
@@ -523,64 +523,11 @@ const DeviceDashboard = () => {
         valveStates={valveStates}
       />
 
-      {/* Top Row: Valve Controls (Full Width) */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} md={24}>
-          <Card className="valve-control-card">
-            <div className="valve-control-header">
-              <div className="valve-control-title">
-                <Title level={4}>
-                  <ControlOutlined style={{ marginRight: '8px' }} />
-                  Outlet Valve Control
-                </Title>
-                <Badge count={activeValveCountV1toV8} style={{ backgroundColor: '#52c41a' }}>
-                  <Tag className="max-active-tag">
-                    <ExclamationCircleOutlined style={{ marginRight: '4px' }} />
-                    MAX {MAX_ACTIVE_VALVES} ACTIVE
-                  </Tag>
-                </Badge>
-              </div>
-              <Button
-                type="primary"
-                size="large"
-                icon={<SendOutlined />}
-                loading={isLoading}
-                onClick={() => handleSendCommand()}
-                className="send-command-button send-command-active"
-              >
-                {isLoading ? 'SENDING...' : 'SEND COMMAND'}
-              </Button>
-            </div>
-            <div className="valve-controls-grid">
-              {initialValveOrder.map((key, index) => {
-                const isOn = !!pendingDoStatusBits[index];
-                const label = `VALVE ${index + 1}`;
-                return (
-                  <div key={key} className="valve-control">
-                    <Button
-                      type={isOn ? 'primary' : 'default'}
-                      size="large"
-                      onClick={() => handleValveToggle(key)}
-                      disabled={isLoading}
-                      icon={isOn ? <CheckCircleOutlined /> : <PoweroffOutlined />}
-                      className={`valve-button ${isOn ? 'valve-on' : 'valve-off'}`}
-                    >
-                      {isOn ? 'ON' : 'OFF'}
-                    </Button>
-                    <div className={`valve-label ${isOn ? 'valve-on' : 'valve-off'}`}>
-                      {label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+
 
       {/* Bottom Row: Status (Left) & Map (Right) */}
       <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'stretch' }}>
-        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Col xs={24} md={16} style={{ display: 'flex', flexDirection: 'column' }}>
           <Card className="status-dashboard-card" style={{ flex: 1 }}>
             <Title level={4} className="status-dashboard-title">
               <DatabaseOutlined style={{ marginRight: '8px' }} />
@@ -665,12 +612,69 @@ const DeviceDashboard = () => {
         </Col>
 
         {/* Map Component */}
-        <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, height: '100%', minHeight: '300px' }}>
             <ChartMapData />
           </div>
         </Col>
       </Row>
+      <br></br>
+      {/* Top Row: Valve Controls (Full Width) */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} md={24}>
+          <Card className="valve-control-card">
+            <div className="valve-control-header">
+              <div className="valve-control-title">
+                <Title level={4}>
+                  <ControlOutlined style={{ marginRight: '8px' }} />
+                  Outlet Valve Control
+                </Title>
+                <Badge count={activeValveCountV1toV8} style={{ backgroundColor: '#52c41a' }}>
+                  <Tag className="max-active-tag">
+                    <ExclamationCircleOutlined style={{ marginRight: '4px' }} />
+                    MAX {MAX_ACTIVE_VALVES} ACTIVE
+                  </Tag>
+                </Badge>
+              </div>
+              <Button
+                type="primary"
+                size="large"
+                icon={<SendOutlined />}
+                loading={isLoading}
+                onClick={() => handleSendCommand()}
+                className="send-command-button send-command-active"
+              >
+                {isLoading ? 'SENDING...' : 'SEND COMMAND'}
+              </Button>
+            </div>
+            <div className="valve-controls-grid">
+              {initialValveOrder.map((key, index) => {
+                const isOn = !!pendingDoStatusBits[index];
+                const label = `VALVE ${index + 1}`;
+                return (
+                  <div key={key} className="valve-control">
+                    <Button
+                      type={isOn ? 'primary' : 'default'}
+                      size="large"
+                      onClick={() => handleValveToggle(key)}
+                      disabled={isLoading}
+                      icon={isOn ? <CheckCircleOutlined /> : <PoweroffOutlined />}
+                      className={`valve-button ${isOn ? 'valve-on' : 'valve-off'}`}
+                    >
+                      {isOn ? 'ON' : 'OFF'}
+                    </Button>
+                    <div className={`valve-label ${isOn ? 'valve-on' : 'valve-off'}`}>
+                      {label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+
     </>
   );
 };

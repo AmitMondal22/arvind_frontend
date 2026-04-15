@@ -1013,29 +1013,29 @@ const BranchConfig = () => {
                 <Form form={scheduleForm} layout="vertical">
                   <Row gutter={[20, 0]}>
                     <Col xs={12} sm={6}>
-                      <Form.Item label={<Text strong>Slot</Text>} required>
-                        <Select
-                          placeholder="Select Slot"
-                          value={schedSlot}
-                          onChange={setSchedSlot}
-                          size="large" style={{ width: '100%' }}
-                        >
-                          {slotOptions.map(s => (
-                            <Option key={s.value} value={s.value}>{s.label}</Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col xs={12} sm={6}>
                       <Form.Item label={<Text strong>Setting Type</Text>} required>
                         <Select
                           placeholder="Select Setting Type"
                           value={schedSetting}
                           onChange={setSchedSetting}
                           size="large" allowClear style={{ width: '100%' }}
-                          disabled={schedSlot === undefined}
                         >
                           {settingTypeOptions.map(s => (
+                            <Option key={s.value} value={s.value}>{s.label}</Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={12} sm={6}>
+                      <Form.Item label={<Text strong>Slot</Text>} required>
+                        <Select
+                          placeholder="Select Slot"
+                          value={schedSlot}
+                          onChange={setSchedSlot}
+                          size="large" style={{ width: '100%' }}
+                          disabled={schedSetting === undefined}
+                        >
+                          {slotOptions.map(s => (
                             <Option key={s.value} value={s.value}>{s.label}</Option>
                           ))}
                         </Select>
