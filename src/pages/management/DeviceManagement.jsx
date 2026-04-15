@@ -82,6 +82,18 @@ const DeviceManagement = () => {
         </Tag>
       )
     },
+    { title: 'Gateway ID', dataIndex: 'gateway_id', key: 'gateway_id' },
+    { title: 'Branch No.', dataIndex: 'branch_number', key: 'branch_number' },
+    { 
+      title: 'Status', 
+      dataIndex: 'device_status', 
+      key: 'device_status',
+      render: (status) => (
+        <Tag color={status === 'ONLINE' ? 'green' : 'red'}>
+          {status || 'OFFLINE'}
+        </Tag>
+      )
+    },
     {
       title: 'Actions',
       key: 'actions',

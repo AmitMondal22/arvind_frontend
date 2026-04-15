@@ -638,6 +638,40 @@ const Device = () => {
       ),
     },
     {
+      title: 'Gateway ID',
+      dataIndex: 'gateway_id',
+      key: 'gateway_id',
+      ...getColumnSearchProps('gateway_id'),
+    },
+    {
+      title: 'Branch No.',
+      dataIndex: 'branch_number',
+      key: 'branch_number',
+      ...getColumnSearchProps('branch_number'),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'device_type',
+      key: 'device_type',
+      render: (type) => (
+        <Badge
+          color={type === 'AMS' ? colors.success : colors.primary}
+          text={<span style={{ fontWeight: 500 }}>{type || 'OMS'}</span>}
+        />
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'device_status',
+      key: 'device_status',
+      render: (status) => (
+        <Badge
+          status={status === 'ONLINE' ? 'success' : 'error'}
+          text={<span style={{ fontWeight: 500 }}>{status || 'OFFLINE'}</span>}
+        />
+      ),
+    },
+    {
       title: 'Location',
       key: 'location',
       render: (_, record) => (
