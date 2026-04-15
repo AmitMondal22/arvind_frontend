@@ -138,6 +138,7 @@ const BranchConfig = () => {
   const [branchInfo, setBranchInfo] = useState(null);
   const [summary, setSummary] = useState({ total_devices: 0, active_devices: 0 });
   const [devices, setDevices] = useState([]);
+  const [branchSchedule, setBranchSchedule] = useState({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const timerRef = useRef(null);
 
@@ -171,6 +172,7 @@ const BranchConfig = () => {
       setBranchInfo(res.data.branch || null);
       setSummary(res.data.summary || {});
       setDevices(res.data.devices || []);
+      setBranchSchedule(res.data.branch_schedule || {});
     } else {
       message.error(res?.error || 'Failed to load branch configuration');
     }
@@ -214,6 +216,19 @@ const BranchConfig = () => {
     scheduleForm.resetFields();
     setSelectedDays(dayOptions.map(d => d.value));
 
+    // Prefer branch_schedule (group schedule) over individual device schedules
+    const bs = branchSchedule?.[`valve_${valveNo}`] || {};
+    if (bs.has_schedule) {
+      setSchedSetting(bs.do_type);
+      scheduleForm.setFieldsValue({
+        one_on_time: parseTimeToDayjs(bs.one_on_time),
+        one_off_time: parseTimeToDayjs(bs.one_off_time)
+      });
+      if (bs.days) setSelectedDays(bs.days.split(','));
+      return;
+    }
+
+    // Fallback: check per-device schedules
     for (const device of devices) {
       const vd = device.valves?.[`valve_${valveNo}`] || {};
       if (vd.has_schedule) {
@@ -793,14 +808,18 @@ const BranchConfig = () => {
               const key = `valve_${valveNo}`;
               const isLd = switchLoading[key] || false;
 
-              let hasAnySchedule = false;
-              let settingType = null;
-              for (const device of devices) {
-                const vd = device.valves?.[`valve_${valveNo}`] || {};
-                if (vd.has_schedule) {
-                  hasAnySchedule = true;
-                  settingType = vd.do_type;
-                  break;
+              // Use branchSchedule first, then fallback to device-level
+              const bs = branchSchedule?.[`valve_${valveNo}`] || {};
+              let hasAnySchedule = bs.has_schedule || false;
+              let settingType = bs.do_type ?? null;
+              if (!hasAnySchedule) {
+                for (const device of devices) {
+                  const vd = device.valves?.[`valve_${valveNo}`] || {};
+                  if (vd.has_schedule) {
+                    hasAnySchedule = true;
+                    settingType = vd.do_type;
+                    break;
+                  }
                 }
               }
 
@@ -885,14 +904,21 @@ const BranchConfig = () => {
             <Row gutter={[10, 10]}>
               {valveList.map(v => {
                 const isSelectedValve = schedValve === v;
-                let hasSchedule = false, doType = null, onTime = '', offTime = '';
-                for (const device of devices) {
-                  const vd = device.valves?.[`valve_${v}`] || {};
-                  if (vd.has_schedule) {
-                    hasSchedule = true; doType = vd.do_type;
-                    onTime = vd.one_on_time ? String(vd.one_on_time).substring(0, 5) : '';
-                    offTime = vd.one_off_time ? String(vd.one_off_time).substring(0, 5) : '';
-                    break;
+                // Use branchSchedule first, then fallback to device-level
+                const bs = branchSchedule?.[`valve_${v}`] || {};
+                let hasSchedule = bs.has_schedule || false;
+                let doType = bs.do_type ?? null;
+                let onTime = bs.one_on_time ? String(bs.one_on_time).substring(0, 5) : '';
+                let offTime = bs.one_off_time ? String(bs.one_off_time).substring(0, 5) : '';
+                if (!hasSchedule) {
+                  for (const device of devices) {
+                    const vd = device.valves?.[`valve_${v}`] || {};
+                    if (vd.has_schedule) {
+                      hasSchedule = true; doType = vd.do_type;
+                      onTime = vd.one_on_time ? String(vd.one_on_time).substring(0, 5) : '';
+                      offTime = vd.one_off_time ? String(vd.one_off_time).substring(0, 5) : '';
+                      break;
+                    }
                   }
                 }
                 return (

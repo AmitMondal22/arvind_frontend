@@ -13,14 +13,16 @@ import {
   Tag,
   message,
   Checkbox,
-  Divider
+  Divider,
+  Switch
 } from 'antd';
 import {
   ScheduleOutlined,
   SaveOutlined,
   ReloadOutlined,
   DownloadOutlined,
-  ControlOutlined
+  ControlOutlined,
+  ClearOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import useDashboardDeviceApi from '../../api/useDashboardDeviceApi';
@@ -63,10 +65,16 @@ const settingOptions = [
   { label: 'Manual', value: 1 }
 ];
 
+const slotOptions = [
+  { label: 'Slot 1', value: 0 },
+  { label: 'Slot 2', value: 1 },
+  { label: 'Slot 3', value: 2 }
+];
+
 /**
  * Auto-fill form from schedule data (API response or WebSocket)
  */
-function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve) {
+function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve, setSelectedSlot, setScheduleStatus) {
   if (!sched) return;
 
   // Setting type (do_type)
@@ -79,6 +87,16 @@ function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, set
   // Auto-select valve from do_no
   if (setSelectedValve && sched.do_no !== undefined && sched.do_no !== null) {
     setSelectedValve(sched.do_no);
+  }
+
+  // Auto-select slot
+  if (setSelectedSlot && sched.slot !== undefined && sched.slot !== null) {
+    setSelectedSlot(sched.slot);
+  }
+
+  // Status (enable/disable)
+  if (setScheduleStatus && sched.status !== undefined && sched.status !== null) {
+    setScheduleStatus(sched.status === 1 ? true : false);
   }
 
   // Time fields
@@ -109,7 +127,9 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
   const [selectedValve, setSelectedValve] = useState('');
   const [selectedSetting, setSelectedSetting] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState('');
   const [selectedDays, setSelectedDays] = useState(dayOptions.map(d => d.value));
+  const [scheduleStatus, setScheduleStatus] = useState(true);
 
   const wsRef = useRef(null);
   const isConnectingRef = useRef(false);
@@ -124,7 +144,9 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       form.resetFields();
       setSelectedValve('');
       setSelectedSetting('');
+      setSelectedSlot('');
       setSelectedDays(dayOptions.map(d => d.value));
+      setScheduleStatus(true);
     }
   }, [open, form]);
 
@@ -161,7 +183,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
         if (sched) {
           console.log('WebSocket schedule data received:', sched);
           // Auto-fill form including valve selection
-          mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve);
+          mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve, setSelectedSlot, setScheduleStatus);
           message.info(`Schedule updated for Valve ${sched.do_no} via device`);
         }
       } catch (e) {
@@ -190,21 +212,59 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       device,
       do_type: selectedSetting,
       do_no: selectedValve,
+      slot: selectedSlot,
       one_on_time: values.one_on_time ? dayjs(values.one_on_time).format('HH:mm:ss') : '00:00:00',
       one_off_time: values.one_off_time ? dayjs(values.one_off_time).format('HH:mm:ss') : '00:00:00',
       two_on_time: '00:00:00',
       two_off_time: '00:00:00',
       datalog_sec: 120,
-      days: selectedDays.join(',')
+      days: selectedDays.join(','),
+      status: scheduleStatus ? 1 : 0
     };
 
     const res = await shedulingDataApi(payload);
     if (res?.status === 'success' && res?.data) {
       // Auto-fill form from API response
-      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
       message.success('Settings saved and applied successfully!');
     } else {
       message.success('Settings saved!');
+    }
+  };
+
+  const handleClear = async () => {
+    if (selectedValve === '' || selectedSetting === '') {
+      message.warning('Please select a Valve and setting type.');
+      return;
+    }
+
+    const payload = {
+      organization_id: organizationId,
+      device_id: deviceId,
+      device,
+      do_type: selectedSetting,
+      do_no: selectedValve,
+      slot: selectedSlot,
+      one_on_time: '00:00:00',
+      one_off_time: '00:00:00',
+      two_on_time: '00:00:00',
+      two_off_time: '00:00:00',
+      datalog_sec: 120,
+      days: '',
+      status: scheduleStatus ? 1 : 0
+    };
+
+    const res = await shedulingDataApi(payload);
+    if (res?.status === 'success' && res?.data) {
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
+      message.success('Settings cleared successfully!');
+    } else {
+      setSelectedDays([]);
+      form.setFieldsValue({
+        one_on_time: parseHHmmssToDayjs('00:00:00'),
+        one_off_time: parseHHmmssToDayjs('00:00:00')
+      });
+      message.success('Settings cleared!');
     }
   };
 
@@ -217,29 +277,40 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
   };
 
   const handleGetDeviceSettings = async (requestType) => {
-    if (selectedValve === '') {
-      message.warning('Please select a valve first.');
+    if (selectedValve === '' || selectedSlot === '') {
+      message.warning('Please select a Valve and Slot first.');
       return;
     }
-    const res = await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, request_type: requestType });
+    const res = await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, slot: selectedSlot, request_type: requestType });
     // Auto-fill from get response
     if (res?.status === 'success' && res?.data) {
-      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
       message.success('Schedule data loaded from device');
     }
   };
 
-  const handleValveChange = async (value) => {
+  const handleValveChange = (value) => {
     setSelectedValve(value);
-    // Reset form before loading
+    // Reset form and dependent selects before loading
+    form.resetFields();
+    setSelectedSetting('');
+    setSelectedSlot('');
+    setSelectedDays([]);
+  };
+
+  const handleSlotChange = async (value) => {
+    setSelectedSlot(value);
+    // Reset form fields before loading slot data
     form.resetFields();
     setSelectedSetting('');
     setSelectedDays([]);
 
-    const res = await valveDataApi({ organization_id: organizationId, device_id: deviceId, device, do_no: value });
+    if (selectedValve === '' || value === undefined || value === null) return;
+
+    const res = await valveDataApi({ organization_id: organizationId, device_id: deviceId, device, do_no: selectedValve, slot: value });
     if (res?.status === 'success' && res?.data) {
       // Auto-fill from API response
-      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null);
+      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
     }
   };
 
@@ -280,7 +351,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
         <Card style={{ marginBottom: 24, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
           <Form form={form} layout="vertical">
             <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12}>
+              <Col xs={24}>
                 <Form.Item label="Select a Valve" required>
                   <Select
                     placeholder="Select a valve"
@@ -299,6 +370,20 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
               </Col>
 
               <Col xs={24} sm={12}>
+                <Form.Item label="Slot" required>
+                  <Select
+                    placeholder="Select Slot"
+                    value={selectedSlot}
+                    onChange={handleSlotChange}
+                    size="large"
+                    disabled={selectedValve === ''}
+                  >
+                    {slotOptions.map(s => <Option key={s.value} value={s.value}>{s.label}</Option>)}
+                  </Select>
+                </Form.Item>
+              </Col>
+
+              <Col xs={24} sm={12}>
                 <Form.Item label="Setting Type" required>
                   <Select
                     placeholder="Select Setting"
@@ -306,12 +391,26 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
                     onChange={setSelectedSetting}
                     size="large"
                     allowClear
+                    disabled={selectedValve === '' || selectedSlot === ''}
                   >
                     {settingOptions.map(s => <Option key={s.value} value={s.value}>{s.label}</Option>)}
                   </Select>
                 </Form.Item>
               </Col>
             </Row>
+
+            {/* Enable / Disable Schedule */}
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontWeight: 500 }}>Enable Schedule</span>
+              <Switch
+                checked={scheduleStatus}
+                onChange={(checked) => setScheduleStatus(checked)}
+                checkedChildren="Enabled"
+                unCheckedChildren="Disabled"
+                style={{ backgroundColor: scheduleStatus ? '#10b981' : '#ef4444' }}
+              />
+              <Tag color={scheduleStatus ? 'green' : 'red'}>{scheduleStatus ? 'Active' : 'Inactive'}</Tag>
+            </div>
 
             {/* Timers */}
             <Row gutter={[16, 16]}>
@@ -351,7 +450,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
             {/* Actions */}
             <Space wrap style={{ marginTop: 24 }}>
               <Button type="primary" size="middle" icon={<SaveOutlined />} onClick={handleSaveApply} style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}>Save</Button>
-              {/* <Button danger size="middle" icon={<ReloadOutlined />} onClick={handleResetTotalizer}>Reset</Button> */}
+              <Button danger size="middle" icon={<ClearOutlined />} onClick={handleClear}>Clear</Button>
               <Button size="middle" icon={<DownloadOutlined />} onClick={() => handleGetDeviceSettings(0)} style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b', color: 'white' }}>Get Schedul</Button>
               <Button size="middle" icon={<DownloadOutlined />} onClick={() => handleGetDeviceSettings(1)} style={{ backgroundColor: '#0ea5e9', borderColor: '#0ea5e9', color: 'white' }}>Get Setting Type</Button>
             </Space>
