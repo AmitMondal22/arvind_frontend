@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Drawer, Form, Input, Button, Space } from 'antd';
+import { Drawer, Form, Input, Button, Space, Select } from 'antd';
 import styled from 'styled-components';
 
 const StyledDrawer = styled(Drawer)`
@@ -114,6 +114,18 @@ const DeviceDrawer = ({ open, onClose, onSave, initialData }) => {
           ]}
         >
           <StyledInput placeholder="Enter 15-digit IMEI" />
+        </Form.Item>
+
+        <Form.Item
+          name="device_type"
+          label="Device Type"
+          initialValue="OMS"
+          rules={[{ required: true, message: 'Please select device type' }]}
+        >
+          <Select placeholder="Select device type">
+            <Select.Option value="OMS">OMS</Select.Option>
+            <Select.Option value="AMS">AMS</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item

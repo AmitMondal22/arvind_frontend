@@ -416,6 +416,7 @@ const Device = () => {
         device_sl_no: formData.device_number,
         device_model: formData.device_model,
         device_imei: formData.device_imei,
+        device_type: formData.device_type || 'OMS',
         latitude: parseFloat(formData.latitude) || 0,
         longitude: parseFloat(formData.longitude) || 0,
       };

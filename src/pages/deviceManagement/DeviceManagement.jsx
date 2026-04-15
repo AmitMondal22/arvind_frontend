@@ -155,7 +155,7 @@ const DeviceManagement = () => {
       filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
       onFilter: (value, record) =>
         record.company.company_name.toString().toLowerCase().includes(value.toLowerCase()),
-      render: (text) => <Text strong style={{ color: '#1677ff' }}>{text}</Text>,
+      render: (text) => <Text strong style={{ color: '#1677ff', fontSize: 11 }}>{text}</Text>,
       responsive: ['md'],
     },
     {
@@ -170,44 +170,47 @@ const DeviceManagement = () => {
             border: '1px solid #e8e8e8',
             borderRadius: '6px',
           }}
+          bodyStyle={{ padding: '6px 10px' }}
           hoverable
         >
-          <Row gutter={[8, 4]}>
-            <Col span={24}>
-              <Text strong>{record.device.device_name}</Text>
-              {/* <Tag
-                color={getDeviceTypeColor(record.device.device_type)}
+          <Row gutter={[8, 2]}>
+            <Col span={24} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+              <Text strong style={{ fontSize: 11 }}>{record.device.device_name}</Text>
+              <Tag
+                color={(record.device.device_type || 'OMS') === 'AMS' ? 'green' : 'blue'}
                 style={{
-                  marginLeft: 8,
-                  borderRadius: '12px',
-                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  padding: '0 6px',
+                  fontSize: 10,
+                  lineHeight: '18px',
+                  fontWeight: 600,
                 }}
               >
-                {record.device.device_type}
-              </Tag> */}
+                {record.device.device_type || 'OMS'}
+              </Tag>
             </Col>
             <Col span={24}>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '10px' }}>
                 Model: {record.device.device_model}
               </Text>
             </Col>
             <Col span={24}>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '10px' }}>
                 S/N: {record.device.device_sl_no}
               </Text>
             </Col>
             <Col span={24}>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '10px' }}>
                 IMEI: {record.device.device_imei}
               </Text>
             </Col>
             <Col span={24}>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '10px' }}>
                 Email: {record.company.email}
               </Text>
             </Col>
             <Col span={24}>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '10px' }}>
                 Created:{' '}
                 {new Date(record.create_at).toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -235,6 +238,7 @@ const DeviceManagement = () => {
           style={{
             borderRadius: '6px',
             border: '1px solid #ff4d4f',
+            fontSize: 11,
           }}
         >
           Delete

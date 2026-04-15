@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, DatePicker, message, Card } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, DatePicker, message, Card, Select, Tag } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import useManagementApi from '../../api/useManagementApi';
 import { useAuth } from '../../context/AuthContext';
@@ -72,6 +72,16 @@ const DeviceManagement = () => {
     { title: 'UID / Device', dataIndex: 'device', key: 'device' },
     { title: 'Device Name', dataIndex: 'device_name', key: 'device_name' },
     { title: 'Model', dataIndex: 'model', key: 'model' },
+    { 
+      title: 'Type', 
+      dataIndex: 'device_type', 
+      key: 'device_type',
+      render: (type) => (
+        <Tag color={type === 'AMS' ? 'green' : 'blue'}>
+          {type || 'OMS'}
+        </Tag>
+      )
+    },
     {
       title: 'Actions',
       key: 'actions',
@@ -106,6 +116,12 @@ const DeviceManagement = () => {
           </Form.Item>
           <Form.Item name="lon" label="Longitude" rules={[{ required: true }]}>
             <Input />
+          </Form.Item>
+          <Form.Item name="device_type" label="Device Type" initialValue="OMS" rules={[{ required: true }]}>
+            <Select>
+              <Select.Option value="OMS">OMS</Select.Option>
+              <Select.Option value="AMS">AMS</Select.Option>
+            </Select>
           </Form.Item>
           {!editingItem && (
             <Form.Item name="last_maintenance" label="Last Maintenance Date" rules={[{ required: true }]}>
