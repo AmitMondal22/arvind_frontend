@@ -247,7 +247,7 @@ function useDashboardDeviceApi() {
                     }
 
                     const errorResult = await handelError(error.response.status);
-                     return{status:false,error:"Unauthorized access - logging out"};  // Stop further execution
+                    return { status: false, error: error.response?.data?.detail || error.response?.data?.message || "An error occurred" };
                 } else {
                     console.error("Unexpected error:", error);
                     const errorResult = await handelError(error);

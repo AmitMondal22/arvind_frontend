@@ -14,7 +14,8 @@ import {
   message,
   Checkbox,
   Divider,
-  Switch
+  Switch,
+  Alert
 } from 'antd';
 import {
   ScheduleOutlined,
@@ -130,6 +131,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
   const [selectedSlot, setSelectedSlot] = useState('');
   const [selectedDays, setSelectedDays] = useState(dayOptions.map(d => d.value));
   const [scheduleStatus, setScheduleStatus] = useState(true);
+  const [saveMessage, setSaveMessage] = useState(null);
 
   const wsRef = useRef(null);
   const isConnectingRef = useRef(false);
@@ -147,6 +149,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       setSelectedSlot('');
       setSelectedDays(dayOptions.map(d => d.value));
       setScheduleStatus(true);
+      setSaveMessage(null);
     }
   }, [open, form]);
 
@@ -199,6 +202,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
 
   /** Actions */
   const handleSaveApply = async () => {
+    setSaveMessage(null);
     if (selectedValve === '' || selectedSetting === '') {
       message.warning('Please select a Valve and setting type.');
       return;
@@ -222,13 +226,26 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       status: scheduleStatus ? 1 : 0
     };
 
-    const res = await shedulingDataApi(payload);
-    if (res?.status === 'success' && res?.data) {
-      // Auto-fill form from API response
-      mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
-      message.success('Settings saved and applied successfully!');
-    } else {
-      message.success('Settings saved!');
+    try {
+      const res = await shedulingDataApi(payload);
+      if (res?.status === 'success' && res?.data) {
+        // Auto-fill form from API response ONLY if data is not just an integer (like user_id)
+        if (typeof res.data === 'object' && res.data !== null && 'do_type' in res.data) {
+          mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
+        }
+        const msg = res?.message || 'Settings saved and applied successfully!';
+        message.success(msg);
+        setSaveMessage({ type: 'success', text: msg });
+      } else {
+        const errMsg = res?.error || res?.message || 'Failed to save settings. Please try again.';
+        message.error(errMsg);
+        setSaveMessage({ type: 'error', text: errMsg });
+      }
+    } catch (err) {
+      console.error(err);
+      const errMsg = err?.response?.data?.detail || err?.message || 'An error occurred while saving.';
+      message.error(errMsg);
+      setSaveMessage({ type: 'error', text: errMsg });
     }
   };
 
@@ -446,6 +463,16 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
                 onChange={onDayChange}
               />
             </div>
+
+            {saveMessage && (
+              <Alert 
+                className="mb-3" 
+                style={{ marginBottom: 16 }} 
+                type={saveMessage.type} 
+                message={saveMessage.text} 
+                showIcon 
+              />
+            )}
 
             {/* Actions */}
             <Space wrap style={{ marginTop: 24 }}>
