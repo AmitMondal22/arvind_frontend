@@ -45,7 +45,7 @@ const AmsDeviceDashboard = () => {
     device,
     device_name,
   } = useParams();
-  
+
   const { requestWebsocketDataApi, readLastDataApi } = useDashboardDeviceApi();
   const { apiDeviceInfo } = useDeviceApi();
 
@@ -83,9 +83,9 @@ const AmsDeviceDashboard = () => {
       };
       const res = await readLastDataApi(reqData);
       if (res?.status || res?.status === 'success') {
-         message.success({ content: 'Data refresh requested!', key: 'refresh_data', duration: 2 });
+        message.success({ content: 'Data refresh requested!', key: 'refresh_data', duration: 2 });
       } else {
-         message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
+        message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
       }
     } catch (e) {
       message.error({ content: 'Refresh request failed!', key: 'refresh_data', duration: 2 });
@@ -199,8 +199,8 @@ const AmsDeviceDashboard = () => {
     } catch { }
   }, [resolvedDevice, resolvedDeviceIdNumber]);
 
-  const onWebSocketClose = useCallback(() => {}, []);
-  const onWebSocketError = useCallback(() => {}, []);
+  const onWebSocketClose = useCallback(() => { }, []);
+  const onWebSocketError = useCallback(() => { }, []);
 
   useEffect(() => {
     if (!wsUrl) return;
@@ -265,7 +265,7 @@ const AmsDeviceDashboard = () => {
                 </Tag>
               }
             />
-            <Title level={4} className="device-title">
+            <Title level={4} className="device-title" style={{ color: 'white' }}>
               <MonitorOutlined style={{ marginRight: '8px' }} />
               {resolvedDeviceName}
             </Title>
@@ -329,7 +329,7 @@ const AmsDeviceDashboard = () => {
           >
             {/* Header */}
             <div style={{
-              background: '#1e293b',
+              background: '#ffffffff',
               padding: '14px 24px',
               display: 'flex',
               alignItems: 'center',
@@ -337,7 +337,7 @@ const AmsDeviceDashboard = () => {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <DashboardOutlined style={{ fontSize: 20, color: '#60a5fa' }} />
-                <Title level={4} style={{ margin: 0, color: '#fff', fontWeight: 700 }}>
+                <Title level={4} style={{ margin: 0, color: '#000000ff', fontWeight: 700 }}>
                   Pressure
                 </Title>
               </div>
@@ -354,7 +354,7 @@ const AmsDeviceDashboard = () => {
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
                 <Progress
                   type="dashboard"
-                  percent={Math.min(pressureVal * 10, 100)}
+                  percent={Math.min((pressureVal / (pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10)) * 100, 100)}
                   size={160}
                   strokeColor={{
                     '0%': '#3b82f6',
@@ -375,13 +375,15 @@ const AmsDeviceDashboard = () => {
               </div>
 
               {/* Linear Progress Bar */}
-              <div style={{ padding: '0 8px' }}>
+              <div style={{ padding: '0 8px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>0 bar</Text>
-                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>10 bar</Text>
+                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+                    {pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10} bar
+                  </Text>
                 </div>
                 <Progress
-                  percent={Math.min(pressureVal * 10, 100)}
+                  percent={Math.min((pressureVal / (pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10)) * 100, 100)}
                   showInfo={false}
                   strokeColor={{
                     from: '#3b82f6',
@@ -390,41 +392,6 @@ const AmsDeviceDashboard = () => {
                   strokeWidth={12}
                   style={{ marginBottom: 0 }}
                 />
-              </div>
-            </div>
-
-            {/* Pressure History Chart */}
-            <div style={{ padding: '12px 16px 16px', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
-              <Text strong style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 8 }}>
-                Live Pressure History
-              </Text>
-              <div style={{ height: 120 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={pressureHistory}>
-                    <defs>
-                      <linearGradient id="pressureGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="time" tick={{ fontSize: 9, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} tickLine={false} axisLine={false} domain={[0, 'auto']} />
-                    <RechartsTooltip
-                      contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid #e2e8f0' }}
-                      formatter={(value) => [`${value} bar`, 'Pressure']}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="pressure"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      fill="url(#pressureGradient)"
-                      dot={false}
-                      animationDuration={300}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
               </div>
             </div>
           </Card>
