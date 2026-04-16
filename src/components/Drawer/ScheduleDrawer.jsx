@@ -85,9 +85,9 @@ function mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, set
     setSelectedSetting('');
   }
 
-  // Auto-select valve from do_no — coerce to number for Select match
+  // Auto-select valve from do_no — coerce to number and add 1 (map 0-5 to 1-6)
   if (setSelectedValve && sched.do_no !== undefined && sched.do_no !== null) {
-    setSelectedValve(Number(sched.do_no));
+    setSelectedValve(Number(sched.do_no) + 1);
   }
 
   // Auto-select slot — coerce to number for Select match
@@ -187,7 +187,7 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
           console.log('WebSocket schedule data received:', sched);
           // Auto-fill form including valve selection
           mapScheduleToForm(sched, setSelectedSetting, setSelectedDays, form, setSelectedValve, setSelectedSlot, setScheduleStatus);
-          message.info(`Schedule updated for Valve ${sched.do_no} via device`);
+          message.info(`Schedule updated for Valve ${Number(sched.do_no) + 1} via device`);
         }
       } catch (e) {
         console.error('WS message error:', e);
