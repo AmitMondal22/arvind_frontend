@@ -27,7 +27,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [reloadLoading, setReloadLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("OMS");
-  
+
   const pollTimerRef = useRef(null);
 
   // ✅ Silent refresh — updates list without showing loading spinner
@@ -116,9 +116,9 @@ const Dashboard = () => {
 
   const handleDeviceClick = (deviceId, device, device_name) => {
     if (activeTab === 'AMS') {
-        navigate(`/ams-device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
+      navigate(`/ams-device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
     } else {
-        navigate(`/device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
+      navigate(`/device/${organizationId}/${projectId}/${deviceId}/${device}/${device_name}/${organizationName}/${projectname}`);
     }
   };
 
@@ -152,12 +152,13 @@ const Dashboard = () => {
     <List
       grid={{
         gutter: [20, 20],
-        xs: 1,
-        sm: 2,
-        md: 3,
-        lg: 4,
-        xl: 5,
+        xs: 2,
+        sm: 3,
+        md: 4,
+        lg: 5,
+        xl: 6,
         xxl: 6,
+        xxxl: 7,
       }}
       dataSource={list}
       renderItem={(item) => {
@@ -262,7 +263,7 @@ const Dashboard = () => {
                 </Text>
               </div>
             </div>
-            
+
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
             </div>
           </div>
@@ -342,21 +343,21 @@ const Dashboard = () => {
           size="large"
           centered
         >
-          <TabPane 
-            tab={<span style={{ display: 'flex', alignItems: 'center' }}><AppstoreOutlined style={{ marginRight: 8, fontSize: '18px' }} />OMS Devices</span>} 
+          <TabPane
+            tab={<span style={{ display: 'flex', alignItems: 'center' }}><AppstoreOutlined style={{ marginRight: 8, fontSize: '18px' }} />OMS Devicess</span>}
             key="OMS"
           >
-             <div style={{ padding: "28px" }}>
-               {renderDeviceGrid(displayList)}
-             </div>
+            <div style={{ padding: "28px" }}>
+              {renderDeviceGrid(displayList)}
+            </div>
           </TabPane>
-          <TabPane 
-            tab={<span style={{ display: 'flex', alignItems: 'center' }}><HddOutlined style={{ marginRight: 8, fontSize: '18px' }} />AMS Devices</span>} 
+          <TabPane
+            tab={<span style={{ display: 'flex', alignItems: 'center' }}><HddOutlined style={{ marginRight: 8, fontSize: '18px' }} />AMS Devices</span>}
             key="AMS"
           >
-             <div style={{ padding: "28px" }}>
-               {renderDeviceGrid(displayList)}
-             </div>
+            <div style={{ padding: "28px" }}>
+              {renderDeviceGrid(displayList)}
+            </div>
           </TabPane>
         </Tabs>
       </Card>
