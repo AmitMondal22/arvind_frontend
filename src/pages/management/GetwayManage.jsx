@@ -125,7 +125,7 @@ const GetwayManage = () => {
          <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8, color: '#1e293b' }}>
            <AppstoreAddOutlined style={{ color: '#3b82f6' }} /> Gateway Management
          </Title>
-         <Button 
+         {/* <Button 
            type="primary" 
            icon={<PlusOutlined />} 
            size="large" 
@@ -133,7 +133,7 @@ const GetwayManage = () => {
            style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6', borderRadius: 6 }}
          >
            Add Gateway
-         </Button>
+         </Button> */}
       </div>
 
       <Card 
