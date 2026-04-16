@@ -88,6 +88,7 @@ const UserList = () => {
     { title: 'ID', dataIndex: 'user_id', key: 'user_id' },
     { title: 'Name', dataIndex: 'user_name', key: 'user_name' },
     { title: 'Email', dataIndex: 'user_email', key: 'user_email' },
+    { title: 'Mobile', dataIndex: 'user_mobile', key: 'user_mobile' },
     { title: 'Organization', dataIndex: 'organization_name', key: 'organization_name' },
     {
       title: 'Actions',
@@ -115,6 +116,9 @@ const UserList = () => {
           <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Please input valid email!' }]}>
             <Input />
           </Form.Item>
+          <Form.Item name="mobile" label="Mobile" rules={[{ required: true, message: 'Please input mobile number!' }]}>
+            <Input />
+          </Form.Item>
           <Form.Item name="organization_id" label="Organization" rules={[{ required: true, message: 'Please select organization!' }]}>
             <Select placeholder="Select Organization">
               {organizations.map(org => (
@@ -122,24 +126,14 @@ const UserList = () => {
               ))}
             </Select>
           </Form.Item>
-          {!editingItem && (
-            <>
-              <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Please input password!' }]}>
-                <Input.Password />
-              </Form.Item>
-              <Form.Item name="confirm_password" label="Confirm Password" dependencies={['password']} rules={[
-                { required: true, message: 'Please confirm password!' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) return Promise.resolve();
-                    return Promise.reject(new Error('Passwords do not match!'));
-                  },
-                }),
-              ]}>
-                <Input.Password />
-              </Form.Item>
-            </>
-          )}
+          <Form.Item name="user_type" label="User Type" rules={[{ required: true, message: 'Please select user type!' }]}>
+            <Select placeholder="Select User Type">
+              <Option value="U">User</Option>
+              <Option value="C">Client</Option>
+              <Option value="A">Admin</Option>
+              <Option value="S">Super Admin</Option>
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
     </Card>
