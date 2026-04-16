@@ -298,7 +298,22 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       message.warning('Please select a Valve and Slot first.');
       return;
     }
-    const res = await shedulingDataGetApi({ organization_id: organizationId, device_id: deviceId, device, client_id: 1, do_no: selectedValve, slot: selectedSlot, request_type: requestType });
+    const values = form.getFieldsValue();
+    const payload = {
+      organization_id: organizationId,
+      device_id: deviceId,
+      device,
+      client_id: 1,
+      request_type: requestType,
+      do_type: selectedSetting || 0,
+      do_no: selectedValve,
+      slot: selectedSlot,
+      one_on_time: values.one_on_time ? dayjs(values.one_on_time).format('HH:mm:ss') : '00:00:00',
+      one_off_time: values.one_off_time ? dayjs(values.one_off_time).format('HH:mm:ss') : '00:00:00',
+      days: selectedDays.join(','),
+      status: scheduleStatus ? 1 : 0
+    };
+    const res = await shedulingDataGetApi(payload);
     // Auto-fill from get response
     if (res?.status === 'success' && res?.data) {
       mapScheduleToForm(res.data, setSelectedSetting, setSelectedDays, form, null, null, setScheduleStatus);
@@ -361,9 +376,6 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
       maskClosable
     >
       <div className="schedule-content">
-        <Title level={4} style={{ marginBottom: '20px', color: '#1e293b' }}>
-          <ControlOutlined style={{ marginRight: 8 }} /> Manage Scheduling
-        </Title>
 
         <Card style={{ marginBottom: 24, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
           <Form form={form} layout="vertical">
@@ -465,12 +477,12 @@ const ScheduleDrawer = ({ open, onClose, deviceInfo }) => {
             </div>
 
             {saveMessage && (
-              <Alert 
-                className="mb-3" 
-                style={{ marginBottom: 16 }} 
-                type={saveMessage.type} 
-                message={saveMessage.text} 
-                showIcon 
+              <Alert
+                className="mb-3"
+                style={{ marginBottom: 16 }}
+                type={saveMessage.type}
+                message={saveMessage.text}
+                showIcon
               />
             )}
 
