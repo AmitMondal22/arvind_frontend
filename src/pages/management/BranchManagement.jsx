@@ -34,7 +34,7 @@ const cardStyle = {
 };
 
 const gradientBtnStyle = {
-  background: '#1f1f1f',
+  background: '#1890ff',
   borderColor: 'transparent', color: '#fff', borderRadius: 8,
   fontWeight: 600, height: 40
 };
@@ -276,7 +276,7 @@ const BranchManagement = () => {
     <div style={{ padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
       {/* ——— Header ——— */}
       <div style={sectionHeaderStyle}>
-        <BranchesOutlined style={{ fontSize: 28, color: '#1f1f1f' }} />
+        <BranchesOutlined style={{ fontSize: 28, color: '#1890ff' }} />
         <div>
           <Title level={3} style={{ margin: 0, color: '#1e293b' }}>Branch Management</Title>
           <Text type="secondary">Manage branches, edit details, and view assigned devices</Text>
@@ -374,58 +374,58 @@ const BranchManagement = () => {
               const isExpanded = expandedBranchId === branch.branch_id;
 
               return (
-                <Col xs={24} sm={12} lg={isExpanded ? 24 : 8} xl={isExpanded ? 24 : 6} key={branch.branch_id}>
+                <Col xs={24} sm={12} lg={8} xl={6} key={branch.branch_id}>
                   <Card
                     hoverable
+                    onClick={() => navigate(`/management/branch/${branch.branch_id}/config`)}
                     style={{
                       borderRadius: 14,
-                      border: isExpanded ? '2px solid #1e293b' : '1px solid #e8edf3',
-                      boxShadow: isExpanded ? '0 8px 32px rgba(0,0,0,0.12)' : '0 2px 12px rgba(0,0,0,0.05)',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                       overflow: 'hidden',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      height: 'auto',
+                      transition: 'all 0.3s ease',
                       display: 'flex',
                       flexDirection: 'column',
+                      cursor: 'pointer',
+                      background: '#fff'
                     }}
                     bodyStyle={{ padding: 0, display: 'flex', flexDirection: 'column', flex: 1 }}
                     onMouseEnter={(e) => {
-                      if (!isExpanded) {
-                        e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                      }
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
-                      if (!isExpanded) {
-                        e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.05)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                      e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    {/* Card Header */}
+                    {/* Card Header — White Sleek Theme */}
                     <div style={{
-                      background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                      padding: '18px 20px',
+                      background: '#ffffff',
+                      borderBottom: '1px solid #f1f5f9',
+                      padding: '16px 20px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
                         <div style={{
                           width: 36, height: 36, borderRadius: 10,
-                          background: 'rgba(255,255,255,0.15)',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           flexShrink: 0
                         }}>
-                          <BranchesOutlined style={{ fontSize: 18, color: '#fff' }} />
+                          <BranchesOutlined style={{ fontSize: 18, color: '#3b82f6' }} />
                         </div>
                         <div style={{ minWidth: 0 }}>
                           <Text strong style={{
-                            color: '#fff', fontSize: 15, display: 'block',
+                            color: '#0f172a', fontSize: 15, display: 'block',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                           }}>
                             {branch.branch_name}
                           </Text>
-                          <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>
+                          <Text style={{ color: '#64748b', fontSize: 12 }}>
                             {branchNumber}
                           </Text>
                         </div>
@@ -434,15 +434,17 @@ const BranchManagement = () => {
                         count={deviceCount}
                         showZero
                         style={{
-                          backgroundColor: deviceCount > 0 ? '#10b981' : 'rgba(255,255,255,0.25)',
+                          backgroundColor: deviceCount > 0 ? '#10b981' : '#f1f5f9',
+                          color: deviceCount > 0 ? '#fff' : '#64748b',
                           fontSize: 11, fontWeight: 700,
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                          boxShadow: 'none',
+                          border: deviceCount === 0 ? '1px solid #e2e8f0' : 'none'
                         }}
                       />
                     </div>
 
                     {/* Card Body */}
-                    <div style={{ padding: '16px 20px', flex: isExpanded ? 'none' : 1 }}>
+                    <div style={{ padding: '16px 20px', flex: 1 }}>
                       {/* Branch Number */}
                       <div style={{ marginBottom: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -451,7 +453,7 @@ const BranchManagement = () => {
                             Branch Number
                           </Text>
                         </div>
-                        <Tag color="purple" style={{ borderRadius: 6, fontSize: 12, padding: '2px 10px', margin: 0, fontWeight: 600 }}>
+                        <Tag color="blue" style={{ borderRadius: 6, fontSize: 12, padding: '2px 10px', margin: 0, fontWeight: 600 }}>
                           {branchNumber}
                         </Tag>
                       </div>
@@ -463,7 +465,7 @@ const BranchManagement = () => {
                             Organization
                           </Text>
                         </div>
-                        <Tag color="blue" style={{ borderRadius: 6, fontSize: 12, padding: '2px 10px', margin: 0 }}>
+                        <Tag color="cyan" style={{ borderRadius: 6, fontSize: 12, padding: '2px 10px', margin: 0 }}>
                           {orgName}
                         </Tag>
                       </div>
@@ -480,7 +482,7 @@ const BranchManagement = () => {
                         </Tag>
                       </div>
 
-                      <Divider style={{ margin: '12px 0' }} />
+                      <Divider style={{ margin: '14px 0 12px 0' }} />
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
@@ -499,99 +501,29 @@ const BranchManagement = () => {
                     <div style={{
                       padding: '12px 20px',
                       borderTop: '1px solid #f1f5f9',
-                      background: '#fafbfc',
+                      background: '#f8fafc',
                       display: 'flex',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      gap: 6
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
                     }}>
-                      <Space size={4}>
-                        <Tooltip title="Edit Branch">
-                          <Button
-                            type="primary" size="small"
-                            icon={<EditOutlined />}
-                            onClick={() => handleOpenEditModal(branch)}
-                            style={{
-                              borderRadius: 7, background: '#1e293b', borderColor: '#1e293b',
-                              width: 32, height: 32, padding: 0
-                            }}
-                          />
-                        </Tooltip>
-                        <Tooltip title={isExpanded ? 'Hide Devices' : 'Show Devices'}>
-                          <Button
-                            size="small"
-                            icon={<MobileOutlined />}
-                            onClick={() => toggleExpandBranch(branch.branch_id)}
-                            style={{
-                              borderRadius: 7,
-                              background: isExpanded ? '#10b981' : '#475569',
-                              borderColor: isExpanded ? '#10b981' : '#475569',
-                              color: '#fff', width: 32, height: 32, padding: 0
-                            }}
-                          />
-                        </Tooltip>
-                        <Tooltip title="Branch Config / Control">
-                          <Button
-                            size="small"
-                            icon={<ScheduleOutlined />}
-                            onClick={() => navigate(`/management/branch/${branch.branch_id}/config`)}
-                            style={{
-                              borderRadius: 7, background: '#64748b', borderColor: '#64748b',
-                              color: '#fff', width: 32, height: 32, padding: 0
-                            }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    </div>
-
-                    {/* ——— Expanded Devices Section ——— */}
-                    {isExpanded && (
-                      <div style={{
-                        borderTop: '2px solid #e2e8f0',
-                        padding: '16px 20px',
-                        background: '#f8fafc'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                          <MobileOutlined style={{ fontSize: 16, color: '#1e293b' }} />
-                          <Title level={5} style={{ margin: 0, color: '#1e293b' }}>
-                            Devices in Branch
-                          </Title>
-                          <Badge
-                            count={devices.length}
-                            showZero
-                            style={{
-                              backgroundColor: devices.length > 0 ? '#3b82f6' : '#94a3b8',
-                              fontSize: 11, fontWeight: 700
-                            }}
-                          />
-                        </div>
-
-                        {devices.length === 0 ? (
-                          <Empty
-                            description={
-                              <Text type="secondary" style={{ fontSize: 13 }}>
-                                No devices linked to this branch (branch_number: {branchNumber})
-                              </Text>
-                            }
-                            style={{ padding: '20px 0' }}
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                          />
-                        ) : (
-                          <Table
-                            columns={deviceColumns}
-                            dataSource={devices}
-                            rowKey="device_id"
-                            size="small"
-                            pagination={devices.length > 10 ? { pageSize: 10, size: 'small' } : false}
-                            style={{
-                              borderRadius: 10,
-                              overflow: 'hidden',
-                              border: '1px solid #e2e8f0'
-                            }}
-                          />
-                        )}
+                      <div style={{ color: '#3b82f6', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <ScheduleOutlined /> <span>Branch Control</span>
                       </div>
-                    )}
+                      <Tooltip title="Edit Branch">
+                        <Button
+                          type="default" size="small"
+                          icon={<EditOutlined style={{ color: '#64748b' }} />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditModal(branch);
+                          }}
+                          style={{
+                            borderRadius: 6, borderColor: '#cbd5e1',
+                            width: 32, height: 32, padding: 0
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
                   </Card>
                 </Col>
               );

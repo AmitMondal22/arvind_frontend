@@ -451,81 +451,50 @@ const BranchConfig = () => {
      RENDER
      ═══════════════════════════════════════════════ */
   return (
-    <div style={{ padding: '16px 20px', maxWidth: 1400, margin: '0 auto' }}>
-
-      {/* ─── Back Button ─── */}
-      <Button
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate('/management/branch')}
-        style={{
-          marginBottom: 16, borderRadius: 8, fontWeight: 500,
-          border: '1px solid #e2e8f0', color: '#475569'
-        }}
-      >
-        Back to Branch List
-      </Button>
+    <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
 
       {/* ═══ HEADER BAR ═══ */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '16px 16px 0 0',
-        padding: '24px 28px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 16,
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(59,130,246,0.25)',
-          }}>
-            <BranchesOutlined style={{ fontSize: 24, color: '#fff' }} />
-          </div>
-          <div>
-            <Title level={3} style={{ margin: 0, color: '#0f172a', letterSpacing: -0.3 }}>
-              {branchInfo.branch_name || 'BRANCH'}
-            </Title>
-            <Text style={{ color: '#64748b', fontSize: 14 }}>
-              {branchInfo.branch_number} • {branchInfo.organization_name} • {branchInfo.project_name}
-            </Text>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          {[
-            { label: 'Total Devices', value: summary.total_devices || 0, color: '#0f172a' },
-            { label: 'Online', value: summary.active_devices || 0, color: '#16a34a' },
-          ].map((s, i) => (
-            <div key={i} style={{
-              textAlign: 'center',
-              background: '#f8fafc', borderRadius: 10, padding: '8px 16px',
-              border: '1px solid #f1f5f9',
-            }}>
-              <Text style={{ color: '#94a3b8', fontSize: 12, display: 'block', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                {s.label}
-              </Text>
-              <Text style={{ color: s.color, fontSize: 22, fontWeight: 700 }}>{s.value}</Text>
+      <Card
+        bordered={false}
+        style={{ marginBottom: 24, borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+        bodyStyle={{ padding: '20px 24px' }}
+      >
+        <Row align="middle" justify="space-between" gutter={[16, 16]}>
+          <Col xs={24} lg={12} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Button 
+                icon={<ArrowLeftOutlined />} 
+                onClick={() => navigate('/management/branch')} 
+                type="text" 
+                style={{ fontSize: 18, color: '#64748b', padding: '0 8px' }}
+            />
+            <div>
+                <Title level={3} style={{ margin: 0, fontWeight: 700, color: '#1e293b' }}>
+                  {branchInfo.branch_name || 'BRANCH'}
+                </Title>
+                <Text style={{ color: '#64748b' }}>
+                  {branchInfo.branch_number} • {branchInfo.organization_name} • {branchInfo.project_name}
+                </Text>
             </div>
-          ))}
+          </Col>
 
-          <Button icon={<ReloadOutlined />} onClick={fetchConfig} size="large"
-            style={{
-              borderRadius: 10, fontWeight: 600,
-              background: '#f8fafc', borderColor: '#e2e8f0', color: '#1e293b',
-            }}
-          >
-            Refresh
-          </Button>
-        </div>
-      </div>
-
-
+          <Col xs={24} lg={12}>
+            <Row gutter={[16, 16]} justify="end" align="middle">
+              <Col>
+                <div style={{ textAlign: 'right', paddingRight: 12, borderRight: '1px solid #e2e8f0' }}>
+                    <Text strong style={{ color: '#0f172a', fontSize: 16 }}>{summary.total_devices || 0} Devices</Text>
+                    <br/>
+                    <Text style={{ color: '#10b981', fontSize: 13, fontWeight: 600 }}>{summary.active_devices || 0} Online</Text>
+                </div>
+              </Col>
+              <Col>
+                  <Button icon={<ReloadOutlined />} onClick={fetchConfig} type="primary" size="large" style={{ borderRadius: 8, fontWeight: 600 }}>
+                    Refresh
+                  </Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Card>
 
       {/* ═══════════════════════════════════════════════
          OPENSTREETMAP — Device Location Map
@@ -770,12 +739,7 @@ const BranchConfig = () => {
 
 
       {/* ═══ MODE SELECTOR ═══ */}
-      <div style={{
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0', borderTop: 'none',
-        padding: '16px 24px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div style={{ marginTop: 24, marginBottom: 16 }}>
         <Segmented
           size="large"
           value={activeMode}
@@ -784,8 +748,8 @@ const BranchConfig = () => {
             {
               label: (
                 <Space style={{ padding: '4px 16px' }}>
-                  <ControlOutlined style={{ fontSize: 18 }} />
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>Manual Control</span>
+                  <ControlOutlined style={{ fontSize: 16 }} />
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>Manual Control</span>
                 </Space>
               ),
               value: 'manual',
@@ -793,34 +757,32 @@ const BranchConfig = () => {
             {
               label: (
                 <Space style={{ padding: '4px 16px' }}>
-                  <ScheduleOutlined style={{ fontSize: 18 }} />
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>Scheduling</span>
+                  <ScheduleOutlined style={{ fontSize: 16 }} />
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>Scheduling</span>
                 </Space>
               ),
               value: 'scheduling',
             },
           ]}
-          style={{ borderRadius: 12, padding: 4 }}
+          style={{ padding: 4 }}
         />
       </div>
 
       {/* ═══════════════════════════════════════════════
-         MODE: MANUAL CONTROL — 6 Valve ON/OFF Buttons
+         MODE: MANUAL CONTROL
          ═══════════════════════════════════════════════ */}
       {activeMode === 'manual' && (
-        <div style={{
-          ...glassCard,
-          borderRadius: '0 0 16px 16px',
-          borderTop: 'none',
-          padding: '28px 24px',
-        }}>
+        <Card
+          bordered={false}
+          style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+          bodyStyle={{ padding: '24px' }}
+        >
           <div style={{ marginBottom: 20 }}>
             <Title level={4} style={{ margin: 0, color: '#1e293b' }}>
-              <ControlOutlined style={{ marginRight: 10, color: '#3b82f6' }} />
               Outlet Valve Control
             </Title>
-            <Text type="secondary" style={{ fontSize: 14, marginTop: 4, display: 'block' }}>
-              Toggle valves ON or OFF for all devices in this branch
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              Toggle valves ON or OFF instantly for all devices linked to this branch
             </Text>
           </div>
 
@@ -848,45 +810,33 @@ const BranchConfig = () => {
                 <Col xs={12} sm={8} md={4} key={valveNo}>
                   <Card
                     style={{
-                      borderRadius: 14, textAlign: 'center',
-                      border: '1px solid #e2e8f0', background: '#fff',
-                      transition: 'all 0.25s ease', overflow: 'hidden',
+                      borderRadius: 12, textAlign: 'center',
+                      border: '1px solid #e2e8f0', background: '#fafafa',
+                      transition: 'all 0.25s ease'
                     }}
                     bodyStyle={{ padding: '20px 12px' }}
                     hoverable
                   >
-                    <div style={{
-                      width: 52, height: 52, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      margin: '0 auto 14px',
-                      border: '2px solid #bfdbfe',
-                    }}>
-                      <PoweroffOutlined style={{ fontSize: 22, color: '#3b82f6' }} />
-                    </div>
-
-                    <Text strong style={{ fontSize: 14, color: '#1e293b', display: 'block', marginBottom: 12 }}>
+                    <Text strong style={{ fontSize: 15, color: '#0f172a', display: 'block', marginBottom: 16 }}>
                       Valve {valveNo}
                     </Text>
 
                     <Switch
                       loading={isLd}
-                      checkedChildren={<span style={{ fontSize: 13, fontWeight: 700, padding: '0 4px' }}>ON</span>}
-                      unCheckedChildren={<span style={{ fontSize: 13, fontWeight: 700, padding: '0 4px' }}>OFF</span>}
+                      checkedChildren={<span style={{ fontSize: 12, fontWeight: 600 }}>ON</span>}
+                      unCheckedChildren={<span style={{ fontSize: 12, fontWeight: 600 }}>OFF</span>}
                       onChange={(checked) => handleValveToggle(valveNo, checked)}
-                      style={{ minWidth: 56 }}
+                      style={{ minWidth: 60 }}
                     />
 
-                    <div style={{ marginTop: 10, minHeight: 22 }}>
+                    <div style={{ marginTop: 14 }}>
                       {hasAnySchedule ? (
-                        <Tag color={settingType === 0 ? 'green' : 'orange'}
-                          style={{ fontSize: 11, padding: '2px 8px', margin: 0, borderRadius: 4 }}>
+                        <Tag color={settingType === 0 ? 'green' : 'blue'}
+                          style={{ fontSize: 11, padding: '2px 8px', margin: 0, borderRadius: 12 }}>
                           {settingType === 0 ? 'AUTO' : 'MANUAL'}
                         </Tag>
                       ) : (
-                        <Tag style={{ fontSize: 11, padding: '2px 8px', margin: 0, borderRadius: 4, color: '#94a3b8' }}>
-                          NO SCHEDULE
-                        </Tag>
+                        <Text type="secondary" style={{ fontSize: 11 }}>NO SCHEDULE</Text>
                       )}
                     </div>
                   </Card>
@@ -894,35 +844,36 @@ const BranchConfig = () => {
               );
             })}
           </Row>
-        </div>
+        </Card>
       )}
 
       {/* ═══════════════════════════════════════════════
          MODE: SCHEDULING
          ═══════════════════════════════════════════════ */}
+      {/* ═══════════════════════════════════════════════
+         MODE: SCHEDULING
+         ═══════════════════════════════════════════════ */}
       {activeMode === 'scheduling' && (
-        <div style={{
-          ...glassCard,
-          borderRadius: '0 0 16px 16px',
-          borderTop: 'none',
-          padding: '28px 24px',
-        }}>
+        <Card
+          bordered={false}
+          style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+          bodyStyle={{ padding: '24px' }}
+        >
           <div style={{ marginBottom: 24 }}>
             <Title level={4} style={{ margin: 0, color: '#1e293b' }}>
-              <ScheduleOutlined style={{ marginRight: 10, color: '#8b5cf6' }} />
               Manage Scheduling
             </Title>
-            <Text type="secondary" style={{ fontSize: 14, marginTop: 4, display: 'block' }}>
-              Configure scheduling for all devices in this branch
+            <Text type="secondary" style={{ fontSize: 13, marginTop: 4, display: 'block' }}>
+              Configure scheduling operations for all devices in this branch
             </Text>
           </div>
 
           {/* Select Valve */}
           <div style={{ marginBottom: 24 }}>
-            <Text strong style={{ display: 'block', marginBottom: 10, fontSize: 14, color: '#475569' }}>
-              Select Valve
+            <Text strong style={{ display: 'block', marginBottom: 12, fontSize: 14, color: '#0f172a' }}>
+              Select Target Valve
             </Text>
-            <Row gutter={[10, 10]}>
+            <Row gutter={[12, 12]}>
               {valveList.map(v => {
                 const isSelectedValve = schedValve === v;
                 // Use branchSchedule first, then fallback to device-level
@@ -947,28 +898,27 @@ const BranchConfig = () => {
                     <Card size="small"
                       onClick={() => handleSelectValve(v)}
                       style={{
-                        borderRadius: 12, textAlign: 'center', cursor: 'pointer',
-                        border: isSelectedValve ? '2px solid #8b5cf6' : hasSchedule ? '2px solid #22c55e' : '1px solid #e2e8f0',
-                        background: isSelectedValve ? 'linear-gradient(135deg, #f5f3ff, #ede9fe)' : hasSchedule ? '#f0fdf4' : '#fff',
+                        borderRadius: 10, textAlign: 'center', cursor: 'pointer',
+                        border: isSelectedValve ? '2px solid #3b82f6' : hasSchedule ? '2px solid #22c55e' : '1px solid #e2e8f0',
+                        background: isSelectedValve ? '#eff6ff' : hasSchedule ? '#f0fdf4' : '#fff',
                         transition: 'all 0.2s ease',
-                        boxShadow: isSelectedValve ? '0 4px 16px rgba(139,92,246,0.2)' : 'none',
                       }}
-                      bodyStyle={{ padding: '10px 6px' }}
+                      bodyStyle={{ padding: '12px 6px' }}
                     >
-                      <Text strong style={{ fontSize: 13, display: 'block', color: isSelectedValve ? '#7c3aed' : '#1e293b' }}>
+                      <Text strong style={{ fontSize: 13, display: 'block', color: isSelectedValve ? '#2563eb' : '#1e293b' }}>
                         Valve {v}
                       </Text>
-                      <div style={{ marginTop: 4 }}>
+                      <div style={{ marginTop: 6 }}>
                         {hasSchedule ? (
-                          <Tag color={doType === 0 ? 'green' : 'orange'} style={{ fontSize: 11, padding: '1px 6px', margin: 0, borderRadius: 4 }}>
+                          <Tag color={doType === 0 ? 'green' : 'blue'} style={{ fontSize: 11, padding: '2px 8px', margin: 0, borderRadius: 12 }}>
                             {doType === 0 ? 'AUTO' : 'MANUAL'}
                           </Tag>
                         ) : (
-                          <Tag style={{ fontSize: 11, padding: '1px 6px', margin: 0, color: '#94a3b8', borderRadius: 4 }}>NONE</Tag>
+                          <Tag style={{ fontSize: 11, padding: '2px 8px', margin: 0, color: '#94a3b8', borderRadius: 12 }}>NONE</Tag>
                         )}
                       </div>
                       {hasSchedule && onTime && (
-                        <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 3 }}>
+                        <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
                           {onTime} – {offTime}
                         </Text>
                       )}
@@ -982,32 +932,30 @@ const BranchConfig = () => {
           {/* Schedule Form */}
           {schedValve === null ? (
             <Card style={{
-              borderRadius: 14, textAlign: 'center', padding: '32px 20px',
-              background: '#f8fafc', border: '2px dashed #cbd5e1',
+              borderRadius: 12, textAlign: 'center', padding: '36px 20px',
+              background: '#f8fafc', border: '1px dashed #cbd5e1',
             }}>
-              <ScheduleOutlined style={{ fontSize: 36, color: '#94a3b8', marginBottom: 10 }} />
+              <ScheduleOutlined style={{ fontSize: 32, color: '#94a3b8', marginBottom: 16 }} />
               <br />
-              <Text type="secondary" style={{ fontSize: 14 }}>
-                Select a valve above to configure its schedule
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Select a valve above to configure its system schedule
               </Text>
             </Card>
           ) : (
             <Spin spinning={scheduleLoading}>
               <Card style={{
-                borderRadius: 14, border: '1px solid #e2e8f0',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-              }}>
+                borderRadius: 12, border: '1px solid #e2e8f0',
+                background: '#fafafa'
+              }}
+              bodyStyle={{ padding: '20px' }}>
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #f1f5f9'
+                  marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #e2e8f0'
                 }}>
-                  <Title level={5} style={{ margin: 0, color: '#1e293b' }}>
-                    <ScheduleOutlined style={{ marginRight: 8, color: '#8b5cf6' }} />
-                    Valve {schedValve} — Schedule Configuration
+                  <Title level={5} style={{ margin: 0, color: '#0f172a' }}>
+                    <ScheduleOutlined style={{ marginRight: 8, color: '#3b82f6' }} />
+                    Configuration Profile — Valve {schedValve}
                   </Title>
-                  <Tag color="purple" style={{ fontSize: 12, padding: '3px 12px', borderRadius: 6, fontWeight: 600 }}>
-                    Valve {schedValve}
-                  </Tag>
                 </div>
 
                 <Form form={scheduleForm} layout="vertical">
@@ -1042,44 +990,42 @@ const BranchConfig = () => {
                       </Form.Item>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <Form.Item name="one_on_time" label={<Text strong>Set On Time</Text>} required>
-                        <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="ON time" />
+                      <Form.Item name="one_on_time" label={<Text strong>ON Time</Text>} required>
+                        <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="HH:mm" />
                       </Form.Item>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <Form.Item name="one_off_time" label={<Text strong>Set Off Time</Text>} required>
-                        <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="OFF time" />
+                      <Form.Item name="one_off_time" label={<Text strong>OFF Time</Text>} required>
+                        <TimePicker format="HH:mm" size="large" style={{ width: '100%' }} placeholder="HH:mm" />
                       </Form.Item>
                     </Col>
                   </Row>
 
                   {/* Enable / Disable Schedule */}
                   <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <Text strong style={{ fontSize: 13 }}>Enable Schedule</Text>
+                    <Text strong style={{ fontSize: 13 }}>Schedule Status</Text>
                     <Switch
                       checked={schedStatus}
                       onChange={(checked) => setSchedStatus(checked)}
-                      checkedChildren="Enabled"
-                      unCheckedChildren="Disabled"
-                      style={{ backgroundColor: schedStatus ? '#22c55e' : '#ef4444' }}
+                      style={{ backgroundColor: schedStatus ? '#10b981' : '#cbd5e1' }}
                     />
-                    <Tag color={schedStatus ? 'green' : 'red'} style={{ borderRadius: 6, fontSize: 12 }}>
-                      {schedStatus ? 'Active' : 'Inactive'}
-                    </Tag>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {schedStatus ? 'Active' : 'Disabled'}
+                    </Text>
                   </div>
 
-                  <Divider style={{ margin: '8px 0 18px 0' }} />
+                  <Divider style={{ margin: '8px 0 16px 0' }} />
 
                   {/* Days Selection */}
                   <div style={{ marginBottom: 20 }}>
-                    <Text strong style={{ display: 'block', marginBottom: 10, fontSize: 13 }}>Select Days</Text>
-                    <div style={{ marginBottom: 12 }}>
+                    <Text strong style={{ display: 'block', marginBottom: 12, fontSize: 13 }}>Operating Days</Text>
+                    <div style={{ marginBottom: 16 }}>
                       <Checkbox
                         indeterminate={indeterminate}
                         onChange={(e) => setSelectedDays(e.target.checked ? dayOptions.map(d => d.value) : [])}
                         checked={allDaysChecked}
                       >
-                        <Text strong style={{ fontSize: 13 }}>All Days</Text>
+                        <Text style={{ fontSize: 13 }}>All Days</Text>
                       </Checkbox>
                     </div>
                     <Row gutter={[8, 8]}>
@@ -1094,12 +1040,11 @@ const BranchConfig = () => {
                                 else setSelectedDays(prev => [...prev, day.value]);
                               }}
                               style={{
-                                borderRadius: 10, fontWeight: 600, minWidth: 70,
-                                border: isActive ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                                background: isActive ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : '#fff',
-                                color: isActive ? '#fff' : '#64748b',
-                                boxShadow: isActive ? '0 2px 8px rgba(139,92,246,0.25)' : 'none',
-                                transition: 'all 0.2s ease',
+                                borderRadius: 8, minWidth: 60,
+                                border: isActive ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                                background: isActive ? '#eff6ff' : '#fff',
+                                color: isActive ? '#2563eb' : '#64748b',
+                                fontWeight: isActive ? 600 : 400
                               }}
                             >
                               {day.shortLabel}
@@ -1110,35 +1055,31 @@ const BranchConfig = () => {
                     </Row>
                   </div>
 
-                  <Divider style={{ margin: '8px 0 18px 0' }} />
+                  <Divider style={{ margin: '16px 0' }} />
 
                   <Space size="middle">
                     <Button
                       type="primary" size="large" icon={<SaveOutlined />}
                       onClick={handleSaveSchedule} loading={scheduleLoading}
                       style={{
-                        borderRadius: 10, fontWeight: 700,
-                        background: 'linear-gradient(135deg, #1e293b, #334155)',
-                        borderColor: '#1e293b',
-                        boxShadow: '0 4px 14px rgba(30,41,59,0.3)',
-                        padding: '0 28px', height: 44,
+                        borderRadius: 8, fontWeight: 600, padding: '0 24px'
                       }}
                     >
-                      Save Schedule
+                      Save Configuration
                     </Button>
                     <Button
                       danger size="large" icon={<ReloadOutlined />}
                       onClick={handleResetSchedule} loading={scheduleLoading}
-                      style={{ borderRadius: 10, fontWeight: 700, padding: '0 28px', height: 44 }}
+                      style={{ borderRadius: 8, fontWeight: 600, padding: '0 24px' }}
                     >
-                      Reset Schedule
+                      Reset Data
                     </Button>
                   </Space>
                 </Form>
               </Card>
             </Spin>
           )}
-        </div>
+        </Card>
       )}
 
 
