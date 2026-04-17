@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   Table, 
   Alert, 
@@ -24,6 +24,7 @@ import * as XLSX from 'xlsx';
 
 import useDeviceApi from '../../api/useDeviceApi';
 import useReportApi from '../../api/useReportApi';
+import useDashboardDeviceApi from '../../api/useDashboardDeviceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const { RangePicker } = DatePicker;
@@ -32,10 +33,12 @@ const { Title, Text } = Typography;
 const AmsDeviceReport = () => {
   const { apiDesiceList } = useDeviceApi();
   const { apiDeviceReport } = useReportApi();
+  const { getDeviceThresholdsApi } = useDashboardDeviceApi();
   const { user } = useAuth();
 
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+  const [thresholds, setThresholds] = useState({ min_val: 0, max_val: 100 });
   const [dateRange, setDateRange] = useState([
     dayjs().subtract(1, 'day'),
     dayjs(),
@@ -70,6 +73,44 @@ const AmsDeviceReport = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 🔹 Fetch thresholds when device changes
+  useEffect(() => {
+    const fetchThresholds = async () => {
+      if (selectedDeviceId) {
+        const selectedDevice = devices.find(d => d.device_id === selectedDeviceId);
+        if (selectedDevice?.device) {
+          const res = await getDeviceThresholdsApi(selectedDevice.device);
+          if (res?.status || res?.data) {
+            const fetchedData = res?.data?.data || res?.data || res;
+            if (fetchedData && typeof fetchedData === 'object' && 'min_val' in fetchedData) {
+              setThresholds({
+                min_val: fetchedData.min_val ?? 0,
+                max_val: fetchedData.max_val ?? 100,
+              });
+            }
+          }
+        }
+      }
+    };
+    fetchThresholds();
+  }, [selectedDeviceId, devices]);
+
+  // 🔹 Calculate scaled pressure
+  const calculateScaledPressure = useCallback((rawVal) => {
+    if (rawVal == null || rawVal === '') return 0;
+    
+    const minV = Number(thresholds.min_val != null ? thresholds.min_val : 0);
+    const maxV = Number(thresholds.max_val != null ? thresholds.max_val : 100);
+    
+    const raw = Number(rawVal);
+    
+    // Using algorithm: min(minV + raw, maxV)
+    const result = Math.min(minV + raw, maxV);
+    
+    return Number(result.toFixed(2));
+  }, [thresholds]);
+
+
   // 🔹 Export to Excel
   const exportToExcel = () => {
     if (!tableData.length) {
@@ -84,7 +125,7 @@ const AmsDeviceReport = () => {
       Date: row.date,
       Time: row.time,
       Device: row.device,
-      Pressure: row.flow_rate1, // Data mapped from flow_rate1
+      Pressure: calculateScaledPressure(row.flow_rate1),
     }));
 
     // Create worksheet and workbook
@@ -141,7 +182,7 @@ const AmsDeviceReport = () => {
     
     // Check max pressure logic
     const maxPressure = tableData.length > 0 
-      ? Math.max(...tableData.map(r => parseFloat(r.flow_rate1 || 0)))
+      ? Math.max(...tableData.map(r => calculateScaledPressure(r.flow_rate1)))
       : 0;
 
     return {
@@ -180,7 +221,11 @@ const AmsDeviceReport = () => {
       dataIndex: 'flow_rate1',
       key: 'flow_rate1',
       width: 120,
-      render: (val) => <span style={{ color: '#1890ff', fontWeight: 600 }}>{val}</span>,
+      render: (val) => (
+        <span style={{ color: '#1890ff', fontWeight: 600 }}>
+          {calculateScaledPressure(val)} Bar
+        </span>
+      ),
     },
   ];
 
