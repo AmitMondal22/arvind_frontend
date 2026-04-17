@@ -397,11 +397,13 @@ const BranchConfig = () => {
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {valveList.map(v => {
             const vd = record.valves?.[`valve_${v}`] || {};
+            const isOn = vd.do_status === 1;
+            const showScheduleMode = vd.has_schedule ? (vd.do_type === 0 ? ' (A)' : ' (M)') : '';
             return (
               <Tag key={v}
-                color={vd.has_schedule ? (vd.do_type === 0 ? 'green' : 'orange') : 'default'}
+                color={isOn ? 'green' : 'default'}
                 style={{ fontSize: 11, padding: '1px 6px', margin: 0, borderRadius: 4 }}>
-                V{v}: {vd.has_schedule ? (vd.do_type === 0 ? 'A' : 'M') : '—'}
+                V{v}: {isOn ? 'ON' : 'OFF'}{showScheduleMode}
               </Tag>
             );
           })}
@@ -686,22 +688,21 @@ const BranchConfig = () => {
                             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                               {valveList.map(v => {
                                 const vd = device.valves?.[`valve_${v}`] || {};
-                                const isAuto = vd.do_type === 0;
+                                const isOn = vd.do_status === 1;
+                                const showScheduleMode = vd.has_schedule ? (vd.do_type === 0 ? ' (A)' : ' (M)') : '';
                                 return (
                                   <span key={v} style={{
-                                    padding: '3px 8px', borderRadius: 6, fontSize: 12,
+                                    padding: '3px 8px', borderRadius: 6, fontSize: 11,
                                     fontWeight: 700, letterSpacing: 0.3,
-                                    background: vd.has_schedule
-                                      ? (isAuto ? 'linear-gradient(135deg, #dcfce7, #bbf7d0)' : 'linear-gradient(135deg, #ffedd5, #fed7aa)')
+                                    background: isOn 
+                                      ? 'linear-gradient(135deg, #dcfce7, #bbf7d0)' 
                                       : '#f1f5f9',
-                                    color: vd.has_schedule
-                                      ? (isAuto ? '#15803d' : '#c2410c')
-                                      : '#94a3b8',
-                                    border: vd.has_schedule
-                                      ? `1px solid ${isAuto ? '#86efac' : '#fdba74'}`
+                                    color: isOn ? '#15803d' : '#94a3b8',
+                                    border: isOn 
+                                      ? '1px solid #86efac' 
                                       : '1px solid #e2e8f0',
                                   }}>
-                                    V{v} {vd.has_schedule ? (isAuto ? '✓' : 'M') : '—'}
+                                    V{v} {isOn ? 'ON' : 'OFF'}{showScheduleMode}
                                   </span>
                                 );
                               })}
