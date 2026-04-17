@@ -56,7 +56,9 @@ const DeviceReport = () => {
           organization_id: user?.organization_id ?? 0,
         };
         const res = await apiDesiceList(payload);
-        setDevices(res?.data || []);
+        const allDevices = res?.data || [];
+        const omsDevices = allDevices.filter(d => d.device_type === 'OMS' || (!d.device_type && !d.device_name?.includes('AMS')));
+        setDevices(omsDevices.length ? omsDevices : allDevices);
       } catch (err) {
         setError('Failed to load devices');
       } finally {
@@ -275,174 +277,119 @@ const DeviceReport = () => {
   if (error) return <Alert type="error" message={error} showIcon />;
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', padding: '16px' }}>
-      {/* 🎨 Header Section */}
-      <Card 
+  return (
+    <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '24px' }}>
+      {/* 🎯 Header & Filters Integrated */}
+      <Card
         bordered={false}
-        style={{ 
-          marginBottom: 16,
-          // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: 6
-        }}
-        bodyStyle={{ padding: '16px 20px' }}
+        style={{ marginBottom: 24, borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+        bodyStyle={{ padding: '20px 24px' }}
       >
-        <Space direction="vertical" size={2} style={{ width: '100%' }}>
-          <Title level={4} style={{ color: '#000000ff', margin: 0, fontSize: 16, fontWeight: 600 }}>
-            <DashboardOutlined /> Device Performance Report
-          </Title>
-          <Text style={{ color: 'rgba(0, 0, 0, 0.85)', fontSize: 12 }}>
-            Monitor and analyze device metrics, sensor data, and valve operations
-          </Text>
-        </Space>
-      </Card>
-
-      {/* 📊 Statistics Cards */}
-      {tableData.length > 0 && (
-        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ borderRadius: 6 }} bodyStyle={{ padding: '16px' }}>
-              <Statistic
-                title={<span style={{ fontSize: 12 }}>Total Records</span>}
-                value={stats.totalRecords}
-                prefix={<DatabaseOutlined style={{ color: '#1890ff', fontSize: 16 }} />}
-                valueStyle={{ color: '#1890ff', fontSize: 20 }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ borderRadius: 6 }} bodyStyle={{ padding: '16px' }}>
-              <Statistic
-                title={<span style={{ fontSize: 12 }}>Avg Battery</span>}
-                value={stats.avgBattery}
-                suffix="%"
-                prefix={<FundOutlined style={{ color: '#52c41a', fontSize: 16 }} />}
-                valueStyle={{ color: '#52c41a', fontSize: 20 }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ borderRadius: 6 }} bodyStyle={{ padding: '16px' }}>
-              <Statistic
-                title={<span style={{ fontSize: 12 }}>Device</span>}
-                value={stats.deviceName}
-                valueStyle={{ fontSize: 16, color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ borderRadius: 6 }} bodyStyle={{ padding: '16px' }}>
-              <Statistic
-                title={<span style={{ fontSize: 12 }}>Date Range</span>}
-                value={stats.dateRangeText}
-                prefix={<CalendarOutlined style={{ color: '#fa8c16', fontSize: 16 }} />}
-                valueStyle={{ fontSize: 13, color: '#fa8c16' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-      )}
-
-      {/* 🎯 Filters Section */}
-      <Card 
-        title={<span style={{ fontSize: 13 }}><DatabaseOutlined /> Report Filters</span>}
-        bordered={false}
-        style={{ marginBottom: 16, borderRadius: 6 }}
-        bodyStyle={{ padding: '16px' }}
-        headStyle={{ padding: '0 16px', minHeight: 40 }}
-      >
-        <Row gutter={[12, 12]}>
-          <Col xs={24} sm={24} md={10} lg={8}>
-            <Text strong style={{ display: 'block', marginBottom: 6, fontSize: 12 }}>
-              Select Device
+        <Row align="middle" justify="space-between" gutter={[16, 16]}>
+          <Col xs={24} lg={8}>
+            <Title level={3} style={{ margin: 0, fontWeight: 700, color: '#1e293b' }}>
+              Device Performance
+            </Title>
+            <Text style={{ color: '#64748b' }}>
+              Historical device metrics and sensor data
             </Text>
-            <Select
-              placeholder="Choose a device"
-              style={{ width: '100%', fontSize: 12 }}
-              value={selectedDeviceId}
-              onChange={setSelectedDeviceId}
-              showSearch
-              optionFilterProp="children"
-            >
-              {devices.map(device => (
-                <Select.Option key={device.device_id} value={device.device_id}>
-                  <span style={{ fontSize: 12 }}>
-                    {device.device_name} ({device.device})
-                  </span>
-                </Select.Option>
-              ))}
-            </Select>
           </Col>
 
-          <Col xs={24} sm={24} md={10} lg={10}>
-            <Text strong style={{ display: 'block', marginBottom: 6, fontSize: 12 }}>
-              Date Range
-            </Text>
-            <RangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              style={{ width: '100%' }}
-              format="YYYY-MM-DD"
-            />
-          </Col>
-
-          <Col xs={12} sm={12} md={2} lg={3}>
-            <Text strong style={{ display: 'block', marginBottom: 6, opacity: 0, fontSize: 12 }}>
-              Action
-            </Text>
-            <Button 
-              type="primary" 
-              onClick={handleSubmit} 
-              block 
-              loading={loading}
-              style={{ fontSize: 12 }}
-            >
-              Submit
-            </Button>
-          </Col>
-
-          <Col xs={12} sm={12} md={2} lg={3}>
-            <Text strong style={{ display: 'block', marginBottom: 6, opacity: 0, fontSize: 12 }}>
-              Export
-            </Text>
-            <Button 
-              type="default" 
-              icon={<DownloadOutlined style={{ fontSize: 12 }} />}
-              onClick={exportToExcel} 
-              block
-              disabled={!tableData.length}
-              style={{ fontSize: 12 }}
-            >
-              Excel
-            </Button>
+          <Col xs={24} lg={16}>
+            <Row gutter={[12, 12]} justify="end">
+              <Col xs={24} sm={10} md={8}>
+                <Select
+                  placeholder="Choose Device"
+                  style={{ width: '100%' }}
+                  value={selectedDeviceId}
+                  onChange={setSelectedDeviceId}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={devices.map(device => ({
+                    label: `${device.device_name} (${device.device})`,
+                    value: device.device_id
+                  }))}
+                  size="large"
+                />
+              </Col>
+              <Col xs={24} sm={10} md={8}>
+                <RangePicker
+                  value={dateRange}
+                  onChange={setDateRange}
+                  style={{ width: '100%' }}
+                  format="YYYY-MM-DD"
+                  size="large"
+                />
+              </Col>
+              <Col xs={12} sm={4} md={4}>
+                <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                  <Button
+                    type="primary"
+                    onClick={handleSubmit}
+                    block
+                    loading={loading}
+                    size="large"
+                    style={{ borderRadius: 8, fontWeight: 600 }}
+                  >
+                    Apply
+                  </Button>
+                  <Button
+                    type="default"
+                    icon={<DownloadOutlined />}
+                    onClick={exportToExcel}
+                    block
+                    disabled={!tableData.length}
+                    size="large"
+                    style={{ borderRadius: 8, fontWeight: 600 }}
+                  >
+                    Export
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Card>
 
       {/* 📋 Data Table */}
-      <Card 
-        title={<span style={{ fontSize: 13 }}><FundOutlined /> Device Data Records</span>}
+      <Card
         bordered={false}
-        style={{ borderRadius: 6 }}
-        bodyStyle={{ padding: '16px' }}
-        headStyle={{ padding: '0 16px', minHeight: 40 }}
+        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+        bodyStyle={{ padding: 0 }}
       >
         <Table
           columns={columns}
           dataSource={tableData}
           rowKey="water_data_id"
           loading={loading}
-          pagination={{ 
+          pagination={{
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => <span style={{ fontSize: 12 }}>Total {total} records</span>,
-            responsive: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => <span style={{ color: '#64748b' }}>Total {total} records</span>,
           }}
           scroll={{ x: 'max-content' }}
-          size="small"
-          bordered
-          style={{ fontSize: 12 }}
+          bordered={false}
+          className="sleek-table"
         />
+        <style>{`
+          .sleek-table .ant-table-thead > tr > th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 24px;
+          }
+          .sleek-table .ant-table-tbody > tr > td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+          }
+          .sleek-table .ant-table-tbody > tr:hover > td {
+            background: #f8fafc;
+          }
+        `}</style>
       </Card>
     </div>
   );

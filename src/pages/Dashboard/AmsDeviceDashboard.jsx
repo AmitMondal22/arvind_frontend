@@ -457,16 +457,71 @@ const AmsDeviceDashboard = () => {
         okText="Save"
       >
         <Form form={settingsForm} layout="vertical" onFinish={handleSettingsSubmit} initialValues={thresholds}>
-          <Form.Item name="min_val" label="Min Value (bar)" rules={[{ required: true, message: 'Required' }]}>
+          <Form.Item 
+            name="min_val" 
+            label="Min Value (bar)" 
+            dependencies={['max_val']}
+            rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
+              validator(_, value) {
+                const maxVal = getFieldValue('max_val');
+                if (value == null || maxVal == null || value < maxVal) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Min Value must be strictly smaller than Max Value!'));
+              },
+            })]}
+          >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="max_val" label="Max Value (bar)" rules={[{ required: true, message: 'Required' }]}>
+          
+          <Form.Item 
+            name="max_val" 
+            label="Max Value (bar)" 
+            dependencies={['min_val']}
+            rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
+              validator(_, value) {
+                const minVal = getFieldValue('min_val');
+                if (value == null || minVal == null || value > minVal) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Max Value must be strictly greater than Min Value!'));
+              },
+            })]}
+          >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="high_threshold" label="High Threshold (bar)" rules={[{ required: true, message: 'Required' }]}>
+
+          <Form.Item 
+            name="high_threshold" 
+            label="High Threshold (bar)" 
+            dependencies={['low_threshold']}
+            rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
+              validator(_, value) {
+                const low = getFieldValue('low_threshold');
+                if (value == null || low == null || value > low) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('High Threshold must be strictly greater than Low Threshold!'));
+              },
+            })]}
+          >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="low_threshold" label="Low Threshold (bar)" rules={[{ required: true, message: 'Required' }]}>
+
+          <Form.Item 
+            name="low_threshold" 
+            label="Low Threshold (bar)" 
+            dependencies={['high_threshold']}
+            rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
+              validator(_, value) {
+                const high = getFieldValue('high_threshold');
+                if (value == null || high == null || value < high) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Low Threshold must be strictly smaller than High Threshold!'));
+              },
+            })]}
+          >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
         </Form>

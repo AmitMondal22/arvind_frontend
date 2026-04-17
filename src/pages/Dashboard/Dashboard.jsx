@@ -137,7 +137,8 @@ const Dashboard = () => {
     (item) =>
       item.device_name?.toLowerCase().includes(searchText.toLowerCase()) ||
       item.device?.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.device_id?.toString().toLowerCase().includes(searchText.toLowerCase())
+      item.device_id?.toString().toLowerCase().includes(searchText.toLowerCase()) ||
+      item.branch_number?.toString().toLowerCase().includes(searchText.toLowerCase())
   );
 
   const getDeviceCounts = (list) => {
@@ -164,6 +165,7 @@ const Dashboard = () => {
       render: (_, __, index) => index + 1,
       width: 70,
     },
+
     {
       title: 'Device ID',
       dataIndex: 'device',
@@ -178,6 +180,11 @@ const Dashboard = () => {
       title: 'Gateway ID',
       dataIndex: 'gateway_id',
       key: 'gateway_id',
+    },
+    {
+      title: 'Branch',
+      dataIndex: 'branch_number',
+      key: 'branch_number',
     },
     {
       title: 'Latitude',
