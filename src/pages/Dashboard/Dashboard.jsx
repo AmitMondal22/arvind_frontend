@@ -1,7 +1,7 @@
 // Dashboard.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { List, Card, Typography, Badge, Tag, Row, Col, Button, Tooltip, message, Tabs } from "antd";
+import { List, Card, Typography, Badge, Tag, Row, Col, Button, Tooltip, message, Tabs, Table, Input } from "antd";
 import {
   HddOutlined,
   WifiOutlined,
@@ -10,6 +10,8 @@ import {
   TabletOutlined,
   ExclamationCircleOutlined,
   ReloadOutlined,
+  SearchOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import useDashboardDeviceApi from "../../api/useDashboardDeviceApi";
 import './Dashboard.css';
@@ -27,6 +29,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [reloadLoading, setReloadLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("OMS");
+  const [searchText, setSearchText] = useState("");
 
   const pollTimerRef = useRef(null);
 
@@ -130,6 +133,12 @@ const Dashboard = () => {
 
   // Use API results directly depending on tab selection
   const displayList = deviceList;
+  const filteredDisplayList = displayList.filter(
+    (item) =>
+      item.device_name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.device?.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.device_id?.toString().toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const getDeviceCounts = (list) => {
     const onlineDevices = list.filter(device => {
@@ -148,86 +157,85 @@ const Dashboard = () => {
 
   const deviceCounts = getDeviceCounts(displayList);
 
-  const renderDeviceGrid = (list) => (
-    <List
-      grid={{
-        gutter: [20, 20],
-        xs: 2,
-        sm: 3,
-        md: 4,
-        lg: 5,
-        xl: 6,
-        xxl: 6,
-        xxxl: 7,
-      }}
-      dataSource={list}
-      renderItem={(item) => {
-        const deviceStatus = getDeviceStatus(item.device_status);
-
+  const columns = [
+    {
+      title: 'Sl No',
+      key: 'sl_no',
+      render: (_, __, index) => index + 1,
+      width: 70,
+    },
+    {
+      title: 'Device ID',
+      dataIndex: 'device',
+      key: 'device',
+    },
+    {
+      title: 'Device Name',
+      dataIndex: 'device_name',
+      key: 'device_name',
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (_, record) => {
+        const deviceStatus = getDeviceStatus(record.device_status);
         return (
-          <List.Item>
-            <Card
-              hoverable
-              onClick={() => handleDeviceClick(item.device_id, item.device, item.device_name)}
-              className="device-card"
-              style={{
-                border: `1.5px solid ${deviceStatus.borderColor}`,
-                background: deviceStatus.bgColor,
-              }}
-              bodyStyle={{
-                padding: "20px 16px",
-                textAlign: "center",
-                position: "relative",
-              }}
-            >
-              <Badge
-                status={deviceStatus.status === "ONLINE" ? "success" : "error"}
-                style={{ position: "absolute", top: "12px", right: "12px" }}
-              />
-
-              <div
-                className="device-icon-container"
-                style={{
-                  background: `linear-gradient(135deg, ${deviceStatus.color}, ${deviceStatus.color}dd)`,
-                  boxShadow: `0 3px 10px ${deviceStatus.color}30`,
-                }}
-              >
-                <HddOutlined />
-              </div>
-
-              <Title
-                level={5}
-                className="device-name"
-                ellipsis={{ tooltip: item.device_name }}
-              >
-                {item.device_name}
-              </Title>
-
-              <div style={{ marginBottom: "8px" }}>
-                <Tag
-                  color={deviceStatus.status === "ONLINE" ? "success" : "error"}
-                  className="device-status-tag"
-                >
-                  {deviceStatus.icon}
-                  {deviceStatus.status}
-                </Tag>
-              </div>
-            </Card>
-          </List.Item>
+          <Tag color={deviceStatus.color} icon={deviceStatus.icon}>
+            {deviceStatus.status}
+          </Tag>
         );
-      }}
-      locale={{
-        emptyText: (
-          <div className="empty-state">
-            <HddOutlined className="empty-icon" />
-            <Title level={4} type="secondary">
-              No devices found
-            </Title>
-            <Text type="secondary">Connect devices to see them here</Text>
-          </div>
-        ),
-      }}
-    />
+      },
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeviceClick(record.device_id, record.device, record.device_name);
+          }}
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const renderDeviceTable = (list) => (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <Input
+          placeholder="Search devices by name or ID..."
+          prefix={<SearchOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+          value={searchText}
+          onChange={handleSearch}
+          style={{ width: 300, borderRadius: '6px' }}
+          allowClear
+        />
+      </div>
+      <Table
+        columns={columns}
+        dataSource={list}
+        size="small"
+        rowKey="device_id"
+        onRow={(record) => {
+          const deviceStatus = getDeviceStatus(record.device_status);
+          return {
+            onClick: () => handleDeviceClick(record.device_id, record.device, record.device_name),
+            style: { cursor: 'pointer', backgroundColor: deviceStatus.bgColor }
+          };
+        }}
+        pagination={false}
+      />
+    </div>
   );
 
   return (
@@ -338,17 +346,20 @@ const Dashboard = () => {
       >
         <Tabs
           activeKey={activeTab}
-          onChange={setActiveTab}
+          onChange={(key) => {
+            setActiveTab(key);
+            setSearchText("");
+          }}
           className="buttery-smooth-tabs"
           size="large"
           centered
         >
           <TabPane
-            tab={<span style={{ display: 'flex', alignItems: 'center' }}><AppstoreOutlined style={{ marginRight: 8, fontSize: '18px' }} />OMS Devicess</span>}
+            tab={<span style={{ display: 'flex', alignItems: 'center' }}><AppstoreOutlined style={{ marginRight: 8, fontSize: '18px' }} />OMS Devices</span>}
             key="OMS"
           >
             <div style={{ padding: "28px" }}>
-              {renderDeviceGrid(displayList)}
+              {renderDeviceTable(filteredDisplayList)}
             </div>
           </TabPane>
           <TabPane
@@ -356,7 +367,7 @@ const Dashboard = () => {
             key="AMS"
           >
             <div style={{ padding: "28px" }}>
-              {renderDeviceGrid(displayList)}
+              {renderDeviceTable(filteredDisplayList)}
             </div>
           </TabPane>
         </Tabs>
