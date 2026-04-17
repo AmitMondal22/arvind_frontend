@@ -175,6 +175,21 @@ const Dashboard = () => {
       key: 'device_name',
     },
     {
+      title: 'Gateway ID',
+      dataIndex: 'gateway_id',
+      key: 'gateway_id',
+    },
+    {
+      title: 'Latitude',
+      dataIndex: 'lat',
+      key: 'lat',
+    },
+    {
+      title: 'Longitude',
+      dataIndex: 'lon',
+      key: 'lon',
+    },
+    {
       title: 'Status',
       key: 'status',
       render: (_, record) => {
