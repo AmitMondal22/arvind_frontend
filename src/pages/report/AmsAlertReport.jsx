@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Table, 
   Alert, 
@@ -23,6 +23,7 @@ import * as XLSX from 'xlsx';
 
 import useDeviceApi from '../../api/useDeviceApi';
 import useReportApi from '../../api/useReportApi';
+import useDashboardDeviceApi from '../../api/useDashboardDeviceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const { RangePicker } = DatePicker;
@@ -31,10 +32,12 @@ const { Title, Text } = Typography;
 const AmsAlertReport = () => {
   const { apiDesiceList } = useDeviceApi();
   const { apiAmsAlertReport } = useReportApi();
+  const { getDeviceThresholdsApi } = useDashboardDeviceApi();
   const { user } = useAuth();
 
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const [thresholds, setThresholds] = useState({ min_val: 0, max_val: 100 });
 
   const [dateRange, setDateRange] = useState([
     dayjs().subtract(7, 'day'),
@@ -64,6 +67,40 @@ const AmsAlertReport = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 🔹 Fetch thresholds when device changes
+  useEffect(() => {
+    const fetchThresholds = async () => {
+      if (selectedDevice) {
+        const res = await getDeviceThresholdsApi(selectedDevice);
+        if (res?.status || res?.data) {
+          const fetchedData = res?.data?.data || res?.data || res;
+          if (fetchedData && typeof fetchedData === 'object' && 'min_val' in fetchedData) {
+            setThresholds({
+              min_val: fetchedData.min_val ?? 0,
+              max_val: fetchedData.max_val ?? 100,
+            });
+          }
+        }
+      }
+    };
+    fetchThresholds();
+  }, [selectedDevice]);
+
+  // 🔹 Calculate scaled pressure dynamically using min(minV + raw, maxV) algorithm
+  const calculateScaledPressure = useCallback((rawVal) => {
+    if (rawVal == null || rawVal === '') return 0;
+    
+    const minV = Number(thresholds.min_val != null ? thresholds.min_val : 0);
+    const maxV = Number(thresholds.max_val != null ? thresholds.max_val : 100);
+    
+    const raw = Number(rawVal);
+    
+    // min(current + input, max_val)
+    const result = Math.min(minV + raw, maxV);
+    
+    return Number(result.toFixed(2));
+  }, [thresholds]);
+
   // 🔹 Export to Excel
   const exportToExcel = () => {
     if (!tableData.length) {
@@ -77,7 +114,7 @@ const AmsAlertReport = () => {
       'Client ID': row.client_id,
       'Device': row.device,
       'Alert Type': row.alert_type,
-      'Alert Value': row.alert_value,
+      'Alert Value': calculateScaledPressure(row.alert_value), 
       'Created At': row.created_at,
     }));
 
@@ -160,7 +197,7 @@ const AmsAlertReport = () => {
       key: 'alert_type',
       width: 120,
       render: (val) => (
-        <Tag color={val === 'High Value' ? 'red' : 'orange'}>
+        <Tag color={val === 'High Value' || val === 'HIGH' ? 'red' : 'orange'}>
           {val}
         </Tag>
       )
@@ -169,7 +206,12 @@ const AmsAlertReport = () => {
       title: 'Alert Value',
       dataIndex: 'alert_value',
       key: 'alert_value',
-      width: 100,
+      width: 120,
+      render: (val) => (
+        <span style={{ color: '#1890ff', fontWeight: 600 }}>
+          {calculateScaledPressure(val)} Bar
+        </span>
+      ),
     },
     {
       title: 'Created At',
