@@ -277,78 +277,60 @@ const DeviceReport = () => {
   if (error) return <Alert type="error" message={error} showIcon />;
 
   return (
-  return (
-    <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '24px' }}>
-      {/* 🎯 Header & Filters Integrated */}
+    <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '16px' }}>
+      {/* 🎯 Filters Only */}
       <Card
         bordered={false}
-        style={{ marginBottom: 24, borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
-        bodyStyle={{ padding: '20px 24px' }}
+        style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
+        bodyStyle={{ padding: '16px' }}
       >
-        <Row align="middle" justify="space-between" gutter={[16, 16]}>
-          <Col xs={24} lg={8}>
-            <Title level={3} style={{ margin: 0, fontWeight: 700, color: '#1e293b' }}>
-              Device Performance
-            </Title>
-            <Text style={{ color: '#64748b' }}>
-              Historical device metrics and sensor data
-            </Text>
+        <Row gutter={[12, 12]} align="middle">
+          <Col xs={24} sm={8} md={6}>
+            <Select
+              placeholder="Choose Device"
+              style={{ width: '100%' }}
+              value={selectedDeviceId}
+              onChange={setSelectedDeviceId}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={devices.map(device => ({
+                label: `${device.device_name} (${device.device})`,
+                value: device.device_id
+              }))}
+            />
           </Col>
-
-          <Col xs={24} lg={16}>
-            <Row gutter={[12, 12]} justify="end">
-              <Col xs={24} sm={10} md={8}>
-                <Select
-                  placeholder="Choose Device"
-                  style={{ width: '100%' }}
-                  value={selectedDeviceId}
-                  onChange={setSelectedDeviceId}
-                  showSearch
-                  filterOption={(input, option) =>
-                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                  }
-                  options={devices.map(device => ({
-                    label: `${device.device_name} (${device.device})`,
-                    value: device.device_id
-                  }))}
-                  size="large"
-                />
-              </Col>
-              <Col xs={24} sm={10} md={8}>
-                <RangePicker
-                  value={dateRange}
-                  onChange={setDateRange}
-                  style={{ width: '100%' }}
-                  format="YYYY-MM-DD"
-                  size="large"
-                />
-              </Col>
-              <Col xs={12} sm={4} md={4}>
-                <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                  <Button
-                    type="primary"
-                    onClick={handleSubmit}
-                    block
-                    loading={loading}
-                    size="large"
-                    style={{ borderRadius: 8, fontWeight: 600 }}
-                  >
-                    Apply
-                  </Button>
-                  <Button
-                    type="default"
-                    icon={<DownloadOutlined />}
-                    onClick={exportToExcel}
-                    block
-                    disabled={!tableData.length}
-                    size="large"
-                    style={{ borderRadius: 8, fontWeight: 600 }}
-                  >
-                    Export
-                  </Button>
-                </Space>
-              </Col>
-            </Row>
+          <Col xs={24} sm={10} md={8}>
+            <RangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              style={{ width: '100%' }}
+              format="YYYY-MM-DD"
+            />
+          </Col>
+          <Col xs={12} sm={3} md={3}>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              block
+              loading={loading}
+              style={{ borderRadius: 6 }}
+            >
+              Apply
+            </Button>
+          </Col>
+          <Col xs={12} sm={3} md={3}>
+            <Button
+              type="default"
+              icon={<DownloadOutlined />}
+              onClick={exportToExcel}
+              block
+              disabled={!tableData.length}
+              style={{ borderRadius: 6 }}
+            >
+              Export
+            </Button>
           </Col>
         </Row>
       </Card>
@@ -356,7 +338,7 @@ const DeviceReport = () => {
       {/* 📋 Data Table */}
       <Card
         bordered={false}
-        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
+        style={{ borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
         bodyStyle={{ padding: 0 }}
       >
         <Table
@@ -364,11 +346,8 @@ const DeviceReport = () => {
           dataSource={tableData}
           rowKey="water_data_id"
           loading={loading}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => <span style={{ color: '#64748b' }}>Total {total} records</span>,
-          }}
+          size="small"
+          pagination={false}
           scroll={{ x: 'max-content' }}
           bordered={false}
           className="sleek-table"
@@ -379,12 +358,14 @@ const DeviceReport = () => {
             color: #475569;
             font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
-            padding: 16px 24px;
+            padding: 8px 16px;
+            font-size: 13px;
           }
           .sleek-table .ant-table-tbody > tr > td {
-            padding: 16px 24px;
+            padding: 8px 16px;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
+            font-size: 13px;
           }
           .sleek-table .ant-table-tbody > tr:hover > td {
             background: #f8fafc;

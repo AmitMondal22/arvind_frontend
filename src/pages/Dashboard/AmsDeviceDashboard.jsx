@@ -288,14 +288,14 @@ const AmsDeviceDashboard = () => {
 
   const calculateScaledPressure = useCallback((rawVal) => {
     if (rawVal == null || rawVal === '') return 0;
-    
+
     const minV = Number(thresholds.min_val != null ? thresholds.min_val : 0);
     const maxV = Number(thresholds.max_val != null ? thresholds.max_val : 100);
-    
+
     const raw = Number(rawVal);
-    
+
     const result = Math.min(minV + raw, maxV);
-    
+
     return Number(result.toFixed(2));
   }, [thresholds]);
 
@@ -457,9 +457,9 @@ const AmsDeviceDashboard = () => {
         okText="Save"
       >
         <Form form={settingsForm} layout="vertical" onFinish={handleSettingsSubmit} initialValues={thresholds}>
-          <Form.Item 
-            name="min_val" 
-            label="Min Value (bar)" 
+          <Form.Item
+            name="min_val"
+            label="Min Value"
             dependencies={['max_val']}
             rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
               validator(_, value) {
@@ -473,10 +473,10 @@ const AmsDeviceDashboard = () => {
           >
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
-          
-          <Form.Item 
-            name="max_val" 
-            label="Max Value (bar)" 
+
+          <Form.Item
+            name="max_val"
+            label="Max Value"
             dependencies={['min_val']}
             rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
               validator(_, value) {
@@ -491,9 +491,9 @@ const AmsDeviceDashboard = () => {
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item 
-            name="high_threshold" 
-            label="High Threshold (bar)" 
+          <Form.Item
+            name="high_threshold"
+            label="High Threshold (Alert)"
             dependencies={['low_threshold']}
             rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
               validator(_, value) {
@@ -508,9 +508,9 @@ const AmsDeviceDashboard = () => {
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item 
-            name="low_threshold" 
-            label="Low Threshold (bar)" 
+          <Form.Item
+            name="low_threshold"
+            label="Low Threshold (Alert)"
             dependencies={['high_threshold']}
             rules={[{ required: true, message: 'Required' }, ({ getFieldValue }) => ({
               validator(_, value) {
