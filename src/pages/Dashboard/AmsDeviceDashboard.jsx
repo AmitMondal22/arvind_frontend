@@ -9,6 +9,9 @@ import {
   Badge,
   message,
   Progress,
+  Modal,
+  Form,
+  InputNumber,
 } from 'antd';
 import {
   AreaChart,
@@ -28,6 +31,7 @@ import {
   ClockCircleOutlined,
   ReloadOutlined,
   EnvironmentOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 import './DeviceDashboard.css';
@@ -46,7 +50,7 @@ const AmsDeviceDashboard = () => {
     device_name,
   } = useParams();
 
-  const { requestWebsocketDataApi, readLastDataApi } = useDashboardDeviceApi();
+  const { requestWebsocketDataApi, readLastDataApi, getDeviceThresholdsApi, upsertDeviceThresholdsApi } = useDashboardDeviceApi();
   const { apiDeviceInfo } = useDeviceApi();
 
   const resolvedDeviceName = device_name || device || '';
@@ -71,6 +75,10 @@ const AmsDeviceDashboard = () => {
 
   const [pressureHistory, setPressureHistory] = useState([]);
   const maxHistoryPoints = 30;
+
+  const [thresholds, setThresholds] = useState({ min_val: 0, max_val: 10, high_threshold: 8, low_threshold: 2 });
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const [settingsForm] = Form.useForm();
 
   const handleRefreshData = async () => {
     try {
@@ -99,8 +107,8 @@ const AmsDeviceDashboard = () => {
   };
 
   const getPressureColor = (val) => {
-    if (val > 5) return '#ef4444';
-    if (val > 2) return '#3b82f6';
+    if (val >= thresholds.high_threshold) return '#ef4444';
+    if (val <= thresholds.low_threshold) return '#f59e0b';
     return '#22c55e';
   };
 
@@ -187,6 +195,44 @@ const AmsDeviceDashboard = () => {
       fetchInitialDeviceStatus();
     }
   }, [resolvedDeviceIdNumber, resolvedDevice]);
+
+  useEffect(() => {
+    const fetchThresholds = async () => {
+      if (resolvedDevice) {
+        const res = await getDeviceThresholdsApi(resolvedDevice);
+        if (res?.status || res?.data) {
+          const fetchedData = res?.data?.data || res?.data || res;
+          if (fetchedData && typeof fetchedData === 'object' && 'min_val' in fetchedData) {
+            setThresholds({
+              min_val: fetchedData.min_val ?? 0,
+              max_val: fetchedData.max_val ?? 10,
+              high_threshold: fetchedData.high_threshold ?? 8,
+              low_threshold: fetchedData.low_threshold ?? 2,
+            });
+            settingsForm.setFieldsValue(fetchedData);
+          }
+        }
+      }
+    };
+    fetchThresholds();
+  }, [resolvedDevice, settingsForm]);
+
+  const handleSettingsSubmit = async (values) => {
+    try {
+      message.loading({ content: 'Saving thresholds...', key: 'save_thresholds' });
+      const payload = { device: resolvedDevice, ...values };
+      const res = await upsertDeviceThresholdsApi(payload);
+      if (res?.status || res?.data) {
+        message.success({ content: 'Thresholds saved successfully!', key: 'save_thresholds', duration: 2 });
+        setThresholds(values);
+        setIsSettingsModalVisible(false);
+      } else {
+        message.error({ content: 'Failed to save thresholds!', key: 'save_thresholds', duration: 2 });
+      }
+    } catch (e) {
+      message.error({ content: 'Failed to save thresholds!', key: 'save_thresholds', duration: 2 });
+    }
+  };
 
   const onWebSocketOpen = useCallback(async () => {
     try {
@@ -340,12 +386,15 @@ const AmsDeviceDashboard = () => {
                 <Title level={4} style={{ margin: 0, color: '#000000ff', fontWeight: 700 }}>
                   Pressure
                 </Title>
+                <div onClick={() => setIsSettingsModalVisible(true)} style={{ display: 'flex', alignItems: 'center', marginLeft: 8, cursor: 'pointer', padding: '4px', borderRadius: '50%', background: '#f1f5f9' }}>
+                   <SettingOutlined style={{ fontSize: 16, color: '#64748b' }} />
+                </div>
               </div>
               <Tag
-                color={pressureVal > 5 ? 'red' : pressureVal > 2 ? 'blue' : 'green'}
+                color={pressureVal >= thresholds.high_threshold ? 'red' : pressureVal <= thresholds.low_threshold ? 'orange' : 'green'}
                 style={{ fontSize: 12, padding: '2px 12px', borderRadius: 6, fontWeight: 600 }}
               >
-                {pressureVal > 5 ? 'HIGH' : pressureVal > 2 ? 'NORMAL' : 'LOW'}
+                {pressureVal >= thresholds.high_threshold ? 'HIGH' : pressureVal <= thresholds.low_threshold ? 'LOW' : 'NORMAL'}
               </Tag>
             </div>
 
@@ -354,10 +403,10 @@ const AmsDeviceDashboard = () => {
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
                 <Progress
                   type="dashboard"
-                  percent={Math.min((pressureVal / (pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10)) * 100, 100)}
+                  percent={Math.min(Math.max((pressureVal - thresholds.min_val) / Math.max(1, (thresholds.max_val - thresholds.min_val)) * 100, 0), 100)}
                   size={160}
                   strokeColor={{
-                    '0%': '#3b82f6',
+                    '0%': '#f59e0b',
                     '50%': '#22c55e',
                     '100%': '#ef4444',
                   }}
@@ -377,16 +426,16 @@ const AmsDeviceDashboard = () => {
               {/* Linear Progress Bar */}
               <div style={{ padding: '0 8px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>0 bar</Text>
+                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{thresholds.min_val} bar</Text>
                   <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
-                    {pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10} bar
+                    {thresholds.max_val} bar
                   </Text>
                 </div>
                 <Progress
-                  percent={Math.min((pressureVal / (pressureVal > 100 ? 1000 : pressureVal > 20 ? 100 : pressureVal > 10 ? 20 : 10)) * 100, 100)}
+                  percent={Math.min(Math.max((pressureVal - thresholds.min_val) / Math.max(1, (thresholds.max_val - thresholds.min_val)) * 100, 0), 100)}
                   showInfo={false}
                   strokeColor={{
-                    from: '#3b82f6',
+                    from: '#22c55e',
                     to: getPressureColor(pressureVal),
                   }}
                   strokeWidth={12}
@@ -404,6 +453,29 @@ const AmsDeviceDashboard = () => {
           </div>
         </Col>
       </Row>
+
+      <Modal
+        title="Device Threshold Settings"
+        visible={isSettingsModalVisible}
+        onCancel={() => setIsSettingsModalVisible(false)}
+        onOk={() => settingsForm.submit()}
+        okText="Save"
+      >
+        <Form form={settingsForm} layout="vertical" onFinish={handleSettingsSubmit} initialValues={thresholds}>
+          <Form.Item name="min_val" label="Min Value (bar)" rules={[{ required: true, message: 'Required' }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="max_val" label="Max Value (bar)" rules={[{ required: true, message: 'Required' }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="high_threshold" label="High Threshold (bar)" rules={[{ required: true, message: 'Required' }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="low_threshold" label="Low Threshold (bar)" rules={[{ required: true, message: 'Required' }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

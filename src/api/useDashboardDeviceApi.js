@@ -463,8 +463,57 @@ function useDashboardDeviceApi() {
         }
     };
 
+    const getDeviceThresholdsApi = async (device) => {
+        try {
+           const response = await axios.get(`${address.GET_DEVICE_THRESHOLDS}${device}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status == 200 || response.status == 201) {
+                return response.data;
+            }
+            if (response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "An error occurred" };
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "Unexpected error occurred" };
+        }
+    };
 
-    return { dashboardDeviceList, dashboardDeviceListType, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi, readLastDataApi };
+    const upsertDeviceThresholdsApi = async (data) => {
+        try {
+           const response = await axios.post(address.POST_DEVICE_THRESHOLDS, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status == 200 || response.status == 201) {
+                return response.data;
+            }
+            if (response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "An error occurred" };
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "Unexpected error occurred" };
+        }
+    };
+
+    return { dashboardDeviceList, dashboardDeviceListType, dashboardSwitchApi, valveDataApi, shedulingDataApi, shedulingDataGetApi, resetShedulingApi, requestWebsocketDataApi, deviceStatusUpdateApi, readLastDataApi, getDeviceThresholdsApi, upsertDeviceThresholdsApi };
 }
 
 export default useDashboardDeviceApi;

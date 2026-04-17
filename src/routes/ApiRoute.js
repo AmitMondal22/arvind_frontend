@@ -43,6 +43,8 @@ export const address = {
 
     REPORT_DEVICE_REPORT:`${BASEURL}/api/client/report/water_flow_data`,
 
+    GET_DEVICE_THRESHOLDS: `${BASEURL}/api/device/device_thresholds/`,
+    POST_DEVICE_THRESHOLDS: `${BASEURL}/api/device/device_thresholds`,
 
 // {
 //     "device": "TECH000004",
