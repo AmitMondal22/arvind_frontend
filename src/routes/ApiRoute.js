@@ -42,6 +42,7 @@ export const address = {
     DEVICE_CHART_LIST:`${BASEURL}/api/client/report/last1000data`,
 
     REPORT_DEVICE_REPORT:`${BASEURL}/api/client/report/water_flow_data`,
+    REPORT_AMS_ALERT_REPORT:`${BASEURL}/api/client/report/ams_alert_report`,
 
     GET_DEVICE_THRESHOLDS: `${BASEURL}/api/device/device_thresholds/`,
     POST_DEVICE_THRESHOLDS: `${BASEURL}/api/device/device_thresholds`,

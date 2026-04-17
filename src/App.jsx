@@ -18,6 +18,8 @@ import MyProfile from './pages/MyProfile/MyProfile';
 import DeviceDashboard from './pages/Dashboard/DeviceDashboard';
 import AmsDeviceDashboard from './pages/Dashboard/AmsDeviceDashboard';
 import DeviceReport from './pages/report/DeviceReport';
+import AmsAlertReport from './pages/report/AmsAlertReport';
+import AmsDeviceReport from './pages/report/AmsDeviceReport';
 
 // Master
 import OrganizationList from './pages/master/OrganizationList';
@@ -110,10 +112,27 @@ function App() {
         }
       />
 
+      <Route
+        path="/report/ams_report"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <AmsDeviceReport />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
 
-
-
-
+      <Route
+        path="/report/ams_alert"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <AmsAlertReport />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
       <Route
         path="/"
         element={

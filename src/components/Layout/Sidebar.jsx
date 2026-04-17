@@ -134,11 +134,10 @@ const Sidebar = ({ collapsed }) => {
   ];
 
   const menuReport = [
-    { key: "/historical_data", icon: <DatabaseOutlined />, label: "Historical Data" },
-
+    { key: "/historical_data", icon: <DatabaseOutlined />, label: "OMS Historical Data" },
+    { key: "/report/ams_report", icon: <DatabaseOutlined />, label: "AMS Report" },
+    { key: "/report/ams_alert", icon: <BarChartOutlined />, label: "AMS Alert Report" },
   ];
-
-
 
   return (
     <>

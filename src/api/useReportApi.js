@@ -100,7 +100,30 @@ function useReportApi() {
 
     
 
-    return { apiDeviceReport, apiAnalyticsData };
+    const apiAmsAlertReport = async (data) => {
+        try {
+            const response = await axios.post(
+                address.REPORT_AMS_ALERT_REPORT,
+                data,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                logoutAndRedirect();
+                return { status: false, error: "Unauthorized" };
+            }
+            await handelError(error);
+            return { status: false, error: "Unexpected error" };
+        }
+    };
+
+    return { apiDeviceReport, apiAnalyticsData, apiAmsAlertReport };
 }
 
 export default useReportApi;
