@@ -286,7 +286,20 @@ const AmsDeviceDashboard = () => {
   let value = Math.max(0, Math.min(raw, 13));
   let batteryPercent = Math.round((value / 13) * 100);
 
-  const pressureVal = deviceInfo.flowRate || 0;
+  const calculateScaledPressure = useCallback((rawVal) => {
+    if (rawVal == null || rawVal === '') return 0;
+    
+    const minV = Number(thresholds.min_val != null ? thresholds.min_val : 0);
+    const maxV = Number(thresholds.max_val != null ? thresholds.max_val : 100);
+    
+    const raw = Number(rawVal);
+    
+    const result = Math.min(minV + raw, maxV);
+    
+    return Number(result.toFixed(2));
+  }, [thresholds]);
+
+  const pressureVal = calculateScaledPressure(deviceInfo.flowRate);
 
   return (
     <>
@@ -387,7 +400,7 @@ const AmsDeviceDashboard = () => {
                   Pressure
                 </Title>
                 <div onClick={() => setIsSettingsModalVisible(true)} style={{ display: 'flex', alignItems: 'center', marginLeft: 8, cursor: 'pointer', padding: '4px', borderRadius: '50%', background: '#f1f5f9' }}>
-                   <SettingOutlined style={{ fontSize: 16, color: '#64748b' }} />
+                  <SettingOutlined style={{ fontSize: 16, color: '#64748b' }} />
                 </div>
               </div>
               <Tag
@@ -423,25 +436,7 @@ const AmsDeviceDashboard = () => {
                 />
               </div>
 
-              {/* Linear Progress Bar */}
-              <div style={{ padding: '0 8px', marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{thresholds.min_val} bar</Text>
-                  <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
-                    {thresholds.max_val} bar
-                  </Text>
-                </div>
-                <Progress
-                  percent={Math.min(Math.max((pressureVal - thresholds.min_val) / Math.max(1, (thresholds.max_val - thresholds.min_val)) * 100, 0), 100)}
-                  showInfo={false}
-                  strokeColor={{
-                    from: '#22c55e',
-                    to: getPressureColor(pressureVal),
-                  }}
-                  strokeWidth={12}
-                  style={{ marginBottom: 0 }}
-                />
-              </div>
+
             </div>
           </Card>
         </Col>
