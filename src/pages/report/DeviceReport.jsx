@@ -25,16 +25,20 @@ import * as XLSX from 'xlsx';
 
 import useDeviceApi from '../../api/useDeviceApi';
 import useReportApi from '../../api/useReportApi';
+import useManagementGatewayApi from '../../api/useManagementGatewayApi';
 import { useAuth } from '../../context/AuthContext';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 const DeviceReport = () => {
-  const { apiDesiceList } = useDeviceApi();
+  const { apiDesiceList, apiDeviceListByGateway } = useDeviceApi();
   const { apiDeviceReport } = useReportApi();
+  const { listGatewayApi } = useManagementGatewayApi();
   const { user } = useAuth();
 
+  const [gateways, setGateways] = useState([]);
+  const [selectedGatewayId, setSelectedGatewayId] = useState(null);
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [dateRange, setDateRange] = useState([
@@ -46,19 +50,36 @@ const DeviceReport = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 🔹 ONE TIME device list call (NO LOOP)
+  // 🔹 Load gateways on mount
+  useEffect(() => {
+    const fetchGateways = async () => {
+      try {
+        const res = await listGatewayApi();
+        setGateways(res?.data || []);
+      } catch (err) {
+        console.error('Failed to load gateways');
+      }
+    };
+    fetchGateways();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 🔹 Load devices when gateway changes
   useEffect(() => {
     const fetchDevices = async () => {
+      if (!selectedGatewayId) {
+        setDevices([]);
+        setSelectedDeviceId(null);
+        return;
+      }
       setLoading(true);
       try {
-        const payload = {
-          client_id: 1,
-          organization_id: user?.organization_id ?? 0,
-        };
-        const res = await apiDesiceList(payload);
+        const res = await apiDeviceListByGateway({ gateway_id: selectedGatewayId });
         const allDevices = res?.data || [];
-        const omsDevices = allDevices.filter(d => d.device_type === 'OMS' || (!d.device_type && !d.device_name?.includes('AMS')));
-        setDevices(omsDevices.length ? omsDevices : allDevices);
+        // Strictly show only OMS devices (devices with no type default to OMS)
+        const omsDevices = allDevices.filter(d => d.device_type === 'OMS' || !d.device_type);
+        setDevices(omsDevices);
+        setSelectedDeviceId(null);
       } catch (err) {
         setError('Failed to load devices');
       } finally {
@@ -68,7 +89,14 @@ const DeviceReport = () => {
 
     fetchDevices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedGatewayId]);
+
+  // 🔹 Handle gateway change
+  const handleGatewayChange = (value) => {
+    setSelectedGatewayId(value);
+    setSelectedDeviceId(null);
+    setTableData([]);
+  };
 
   // 🔹 Render individual valve status
   const renderValveStatus = (diStatus, valveIndex) => {
@@ -128,7 +156,7 @@ const DeviceReport = () => {
   // 🔹 Submit report
   const handleSubmit = async () => {
     if (!selectedDeviceId || !dateRange) {
-      setError('Please select device and date range');
+      setError('Please select gateway, device and date range');
       return;
     }
 
@@ -278,20 +306,38 @@ const DeviceReport = () => {
 
   return (
     <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '16px' }}>
-      {/* 🎯 Filters Only */}
+      {/* 🎯 Filters */}
       <Card
         bordered={false}
         style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
         bodyStyle={{ padding: '16px' }}
       >
         <Row gutter={[12, 12]} align="middle">
-          <Col xs={24} sm={8} md={6}>
+          <Col xs={24} sm={6} md={5}>
+            <Select
+              placeholder="Select Gateway"
+              style={{ width: '100%' }}
+              value={selectedGatewayId}
+              onChange={handleGatewayChange}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={gateways.map(gw => ({
+                label: `${gw.gateway_id}`,
+                value: gw.gateway_id
+              }))}
+              allowClear
+            />
+          </Col>
+          <Col xs={24} sm={6} md={5}>
             <Select
               placeholder="Choose Device"
               style={{ width: '100%' }}
               value={selectedDeviceId}
               onChange={setSelectedDeviceId}
               showSearch
+              disabled={!selectedGatewayId}
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
@@ -301,7 +347,7 @@ const DeviceReport = () => {
               }))}
             />
           </Col>
-          <Col xs={24} sm={10} md={8}>
+          <Col xs={24} sm={8} md={7}>
             <RangePicker
               value={dateRange}
               onChange={setDateRange}
@@ -309,7 +355,7 @@ const DeviceReport = () => {
               format="YYYY-MM-DD"
             />
           </Col>
-          <Col xs={12} sm={3} md={3}>
+          <Col xs={12} sm={2} md={3}>
             <Button
               type="primary"
               onClick={handleSubmit}
@@ -320,7 +366,7 @@ const DeviceReport = () => {
               Apply
             </Button>
           </Col>
-          <Col xs={12} sm={3} md={3}>
+          <Col xs={12} sm={2} md={3}>
             <Button
               type="default"
               icon={<DownloadOutlined />}

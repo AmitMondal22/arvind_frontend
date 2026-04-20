@@ -24,17 +24,21 @@ import * as XLSX from 'xlsx';
 import useDeviceApi from '../../api/useDeviceApi';
 import useReportApi from '../../api/useReportApi';
 import useDashboardDeviceApi from '../../api/useDashboardDeviceApi';
+import useManagementGatewayApi from '../../api/useManagementGatewayApi';
 import { useAuth } from '../../context/AuthContext';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 const AmsAlertReport = () => {
-  const { apiDesiceList } = useDeviceApi();
+  const { apiDesiceList, apiDeviceListByGateway } = useDeviceApi();
   const { apiAmsAlertReport } = useReportApi();
   const { getDeviceThresholdsApi } = useDashboardDeviceApi();
+  const { listGatewayApi } = useManagementGatewayApi();
   const { user } = useAuth();
 
+  const [gateways, setGateways] = useState([]);
+  const [selectedGatewayId, setSelectedGatewayId] = useState(null);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [thresholds, setThresholds] = useState({ min_val: 0, max_val: 100 });
@@ -48,24 +52,49 @@ const AmsAlertReport = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // 🔹 Load gateways on mount
+  useEffect(() => {
+    const fetchGateways = async () => {
+      try {
+        const res = await listGatewayApi();
+        setGateways(res?.data || []);
+      } catch (err) {
+        console.error('Failed to load gateways');
+      }
+    };
+    fetchGateways();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 🔹 Load devices when gateway changes
   useEffect(() => {
     const fetchDevices = async () => {
+      if (!selectedGatewayId) {
+        setDevices([]);
+        setSelectedDevice(null);
+        return;
+      }
       try {
-        const payload = {
-          client_id: 1,
-          organization_id: user?.organization_id ?? 0,
-        };
-        const res = await apiDesiceList(payload);
+        const res = await apiDeviceListByGateway({ gateway_id: selectedGatewayId });
         const allDevices = res?.data || [];
-        const amsDevices = allDevices.filter(d => d.device_type === 'AMS' || d.device_name?.includes('AMS'));
-        setDevices(amsDevices.length ? amsDevices : allDevices);
+        // Strictly show only AMS devices
+        const amsDevices = allDevices.filter(d => d.device_type === 'AMS');
+        setDevices(amsDevices);
+        setSelectedDevice(null);
       } catch (err) {
         console.error('Failed to load devices');
       }
     };
     fetchDevices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedGatewayId]);
+
+  // 🔹 Handle gateway change
+  const handleGatewayChange = (value) => {
+    setSelectedGatewayId(value);
+    setSelectedDevice(null);
+    setTableData([]);
+  };
 
   // 🔹 Fetch thresholds when device changes
   useEffect(() => {
@@ -139,7 +168,7 @@ const AmsAlertReport = () => {
   // 🔹 Submit report
   const handleSubmit = async () => {
     if (!selectedDevice) {
-      setError('Please select a device');
+      setError('Please select a gateway and device');
       return;
     }
     if (!dateRange || dateRange.length < 2) {
@@ -225,20 +254,38 @@ const AmsAlertReport = () => {
 
   return (
     <div style={{ background: '#f4f7fe', minHeight: '100vh', padding: '16px' }}>
-      {/* 🎯 Filters Only */}
+      {/* 🎯 Filters */}
       <Card
         bordered={false}
         style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
         bodyStyle={{ padding: '16px' }}
       >
         <Row gutter={[12, 12]} align="middle">
-          <Col xs={24} sm={8} md={6}>
+          <Col xs={24} sm={6} md={5}>
+            <Select
+              placeholder="Select Gateway"
+              style={{ width: '100%' }}
+              value={selectedGatewayId}
+              onChange={handleGatewayChange}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={gateways.map(gw => ({
+                label: `${gw.gateway_id}`,
+                value: gw.gateway_id
+              }))}
+              allowClear
+            />
+          </Col>
+          <Col xs={24} sm={6} md={5}>
             <Select
               placeholder="Choose Device"
               style={{ width: '100%' }}
               value={selectedDevice}
               onChange={setSelectedDevice}
               showSearch
+              disabled={!selectedGatewayId}
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
@@ -248,7 +295,7 @@ const AmsAlertReport = () => {
               }))}
             />
           </Col>
-          <Col xs={24} sm={10} md={8}>
+          <Col xs={24} sm={8} md={7}>
             <RangePicker
               value={dateRange}
               onChange={setDateRange}
@@ -256,7 +303,7 @@ const AmsAlertReport = () => {
               format="YYYY-MM-DD"
             />
           </Col>
-          <Col xs={12} sm={3} md={3}>
+          <Col xs={12} sm={2} md={3}>
             <Button
               type="primary"
               onClick={handleSubmit}
@@ -267,7 +314,7 @@ const AmsAlertReport = () => {
               Apply
             </Button>
           </Col>
-          <Col xs={12} sm={3} md={3}>
+          <Col xs={12} sm={2} md={3}>
             <Button
               type="default"
               icon={<DownloadOutlined />}

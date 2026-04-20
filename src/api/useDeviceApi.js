@@ -159,7 +159,44 @@ function useDeviceApi() {
 
 
 
-    return { apiDesiceList, apiDeviceInfo, last1000data };
+    const apiDeviceListByGateway = async (data) => {
+        try {
+           const response = await axios.post(address.DEVICE_LIST_BY_GATEWAY,
+            data, 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status == 200 || response.status == 201) {
+                return response.data;
+            }
+            if (response.status === 401) {
+                    logoutAndRedirect();
+                    return { status: false, error: "Unauthorized access" };
+            }
+            return { status: false, error: "An error occurred" };
+        } catch (error) {
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        logoutAndRedirect();
+                        return{status:false,error:"Unauthorized access - logging out"};
+                    }
+                    await handelError(error.response.status);
+                    return{status:false,error:"Error occurred"};
+                } else {
+                    console.error("Unexpected error:", error);
+                    await handelError(error);
+                    return{status:false,error:"Unexpected error occurred"};
+                }
+            }
+    };
+
+
+
+
+    return { apiDesiceList, apiDeviceInfo, last1000data, apiDeviceListByGateway };
 }
 
 export default useDeviceApi;

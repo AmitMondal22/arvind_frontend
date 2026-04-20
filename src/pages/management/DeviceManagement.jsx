@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, DatePicker, message, Card, Select, Tag } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import useManagementApi from '../../api/useManagementApi';
+import useManagementGatewayApi from '../../api/useManagementGatewayApi';
 import { useAuth } from '../../context/AuthContext';
 import moment from 'moment';
 
@@ -10,14 +11,17 @@ const DeviceManagement = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [gateways, setGateways] = useState([]);
   const [form] = Form.useForm();
   
   const { listDevices, addDevice, editDevice } = useManagementApi();
+  const { listGatewayApi } = useManagementGatewayApi();
   const { user } = useAuth();
   const clientId = user?.client_id || 1;
 
   useEffect(() => {
     fetchData();
+    fetchGateways();
   }, []);
 
   const fetchData = async () => {
@@ -25,6 +29,15 @@ const DeviceManagement = () => {
     const res = await listDevices({ client_id: clientId });
     if (res?.status) setData(res.data || []);
     setLoading(false);
+  };
+
+  const fetchGateways = async () => {
+    try {
+      const res = await listGatewayApi();
+      setGateways(res?.data || []);
+    } catch (err) {
+      console.error('Failed to load gateways');
+    }
   };
 
   const handleCreate = () => {
@@ -36,7 +49,7 @@ const DeviceManagement = () => {
   const handleEdit = (record) => {
     setEditingItem(record);
     const dateFields = record.last_maintenance ? { last_maintenance: moment(record.last_maintenance) } : {};
-    form.setFieldsValue({ ...record, ...dateFields });
+    form.setFieldsValue({ ...record, ...dateFields, gateway_id: record.gateway_id || undefined });
     setIsModalVisible(true);
   };
 
@@ -47,7 +60,7 @@ const DeviceManagement = () => {
         values.last_maintenance = values.last_maintenance.format('YYYY-MM-DD');
       }
 
-      const payload = { ...values, imei_no: editingItem?.imei_no || 'N/A' };
+      const payload = { ...values, imei_no: editingItem?.imei_no || 'N/A', gateway_id: values.gateway_id || '' };
 
       let res;
       if (editingItem) {
@@ -122,6 +135,20 @@ const DeviceManagement = () => {
           </Form.Item>
           <Form.Item name="model" label="Model" rules={[{ required: true }]}>
             <Input />
+          </Form.Item>
+          <Form.Item name="gateway_id" label="Gateway">
+            <Select
+              placeholder="Select Gateway"
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={gateways.map(gw => ({
+                label: gw.gateway_id,
+                value: gw.gateway_id
+              }))}
+            />
           </Form.Item>
           <Form.Item name="lat" label="Latitude" rules={[{ required: true }]}>
             <Input />

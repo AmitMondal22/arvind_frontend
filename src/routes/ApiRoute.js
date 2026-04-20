@@ -36,6 +36,7 @@ export const address = {
     WEBSOSKET_RES:`${BASEURL}/api/device/waterflow_data_wfms`,
 
     ALL_DEVICE_LIST:`${BASEURL}/api/client/devices_list`,
+    DEVICE_LIST_BY_GATEWAY:`${BASEURL}/api/client/devices/list_by_gateway`,
 
     DEVICE_STATUS_UPDATE:`${BASEURL}/api/client/devices/status_update`,
     DEVICE_INFO_LIST:`${BASEURL}/api/client/devices/device_info`,
