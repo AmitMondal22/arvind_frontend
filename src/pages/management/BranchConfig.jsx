@@ -541,7 +541,10 @@ const BranchConfig = () => {
             <Tooltip title={mapExpanded ? 'Minimize Map' : 'Maximize Map'}>
               <Button
                 icon={mapExpanded ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                onClick={() => setMapExpanded(!mapExpanded)}
+                onClick={() => {
+                  setMapExpanded(!mapExpanded);
+                  setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+                }}
                 style={{
                   borderRadius: 8, fontWeight: 600,
                   background: mapExpanded ? '#1e293b' : '#fff',
@@ -559,11 +562,34 @@ const BranchConfig = () => {
           style={{
             ...glassCard,
             overflow: 'hidden',
-            height: mapExpanded ? 'calc(100vh - 100px)' : 420,
-            transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: mapExpanded ? 'fixed' : 'relative',
+            top: mapExpanded ? 0 : 'auto',
+            left: mapExpanded ? 0 : 'auto',
+            right: mapExpanded ? 0 : 'auto',
+            bottom: mapExpanded ? 0 : 'auto',
+            width: mapExpanded ? '100vw' : '100%',
+            height: mapExpanded ? '100vh' : 420,
+            zIndex: mapExpanded ? 9999 : 1,
+            borderRadius: mapExpanded ? 0 : 16,
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            margin: 0,
+            padding: 0
           }}
           bodyStyle={{ padding: 0, height: '100%' }}
         >
+          {mapExpanded && (
+            <Tooltip title="Exit Fullscreen">
+              <Button
+                type="primary"
+                icon={<FullscreenExitOutlined />}
+                onClick={() => {
+                  setMapExpanded(false);
+                  setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+                }}
+                style={{ position: 'absolute', top: 16, right: 16, zIndex: 10000, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              />
+            </Tooltip>
+          )}
           {mappableDevices.length === 0 ? (
             <div style={{
               height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -589,8 +615,8 @@ const BranchConfig = () => {
               zoomControl={true}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; Google Maps'
+                url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
               />
               <FitBounds devices={mappableDevices} />
 
