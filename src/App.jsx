@@ -10,6 +10,7 @@ import Login from './pages/Login/Login';
 import NotFound from './pages/error/NotFound';
 import NoInternet from './pages/error/NoInternet';
 
+import GlobalAlertListener from './components/GlobalAlertListener';
 
 import Device from './pages/device/Device';
 
@@ -57,8 +58,10 @@ function App() {
   if (!isOnline) return <NoInternet />;
 
   return (
-    <Routes>
-      {/* Public Route (redirects to dashboard if logged in) */}
+    <>
+      <GlobalAlertListener />
+      <Routes>
+        {/* Public Route (redirects to dashboard if logged in) */}
       <Route
         path="/login"
         element={
@@ -190,6 +193,7 @@ function App() {
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 

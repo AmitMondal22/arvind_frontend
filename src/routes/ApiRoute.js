@@ -15,6 +15,7 @@ export const address = {
 
     WS_DEVICE_DASHBOARD:`${WSBASEURL}/api/water_ms_routes/water_station/WFMS/1/`,
     WS_DEVICE_SHEDULING_DASHBOARD:`${WSBASEURL}/api/water_ms_routes/water_station/WFMS_SETTINGS/1/`,
+    WS_ALERT_CONNECTION: `${WSBASEURL}/api/water_ms_routes/alert/`, 
     
 
 

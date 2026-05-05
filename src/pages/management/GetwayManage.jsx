@@ -100,11 +100,30 @@ const GetwayManage = () => {
   };
 
   const columns = [
-      { title: 'Gateway ID', dataIndex: 'gateway_id', key: 'gateway_id' },
+      { 
+          title: 'Gateway ID', 
+          dataIndex: 'gateway_id', 
+          key: 'gateway_id',
+          render: (text) => <Text strong>{text}</Text>
+      },
+      { 
+          title: 'Status', 
+          dataIndex: 'status', 
+          key: 'status',
+          render: (val) => {
+              const isOnline = val && val.toString().toUpperCase() === 'ONLINE';
+              return <Text type={isOnline ? 'success' : 'danger'} strong>{isOnline ? 'Online' : 'Offline'}</Text>;
+          }
+      },
       { title: 'Start ID', dataIndex: 'start_id', key: 'start_id' },
       { title: 'Max ID', dataIndex: 'max_id', key: 'max_id' },
       { title: 'Retry', dataIndex: 'retry', key: 'retry' },
-      { title: 'Created At', dataIndex: 'created_at', key: 'created_at' },
+      { 
+          title: 'Connected Device', 
+          dataIndex: 'connected_device', 
+          key: 'connected_device',
+          render: (val) => <Text>{val || 0}</Text>
+      },
       {
           title: 'Actions',
           key: 'action',
